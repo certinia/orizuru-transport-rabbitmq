@@ -18,19 +18,24 @@ module.exports = {
 	 * Publish
 	 * 
 	 * @example
-	 * TODO
+	 * let buffer = ...;
+	 * index.publish({ eventName: 'test', buffer });
 	 * 
 	 * @param {object} message - { eventName, buffer }
 	 * 
 	 */
-	publish: publish.send,
+	publish: config => publish.send(config),
 	/**
 	 * Subscribe
 	 * 
 	 * @example
-	 * TODO
+	 * let handler = (buffer) => 
+	 * 	{
+	 * 		console.log(buffer);
+	 * 	};
+	 * index.subscribe({ eventName: 'test', handler });
 	 * 
 	 * @param {object} subscriberConfig - { eventName, handler }
 	 */
-	subscribe: subscribe.handle
+	subscribe: config => subscribe.handle(config)
 };

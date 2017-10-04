@@ -2,25 +2,38 @@
 
 const
 	root = require('app-root-path'),
+	sinon = require('sinon'),
 	proxyquire = require('proxyquire'),
-	{ expect } = require('chai');
+
+	{ calledOnce, calledWith } = sinon.assert,
+
+	sandbox = sinon.sandbox.create(),
+	restore = sandbox.restore.bind(sandbox);
 
 describe('index.js', () => {
 
+	afterEach(restore);
+
 	it('should load and expose apis correctly', () => {
 
-		// given - when
+		// given
 		const
-			mockPublish = { send: 'mockPublish' },
-			mockSubscribe = { handle: 'mockSubscribe' },
+			mockPublish = { send: sandbox.spy() },
+			mockSubscribe = { handle: sandbox.spy() },
 			index = proxyquire(root + '/src/lib/index', {
 				['./index/publish']: mockPublish,
 				['./index/subscribe']: mockSubscribe
 			});
 
+		// when
+		index.publish('test1');
+		index.subscribe('test2');
+
 		// then
-		expect(index.publish).to.eql(mockPublish.send);
-		expect(index.subscribe).to.eql(mockSubscribe.handle);
+		calledOnce(mockPublish.send);
+		calledWith(mockPublish.send, 'test1');
+		calledOnce(mockSubscribe.handle);
+		calledWith(mockSubscribe.handle, 'test2');
 
 	});
 
