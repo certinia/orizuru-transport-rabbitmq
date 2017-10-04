@@ -14,18 +14,17 @@
   },
   "keywords": [
     "rabbitmq",
-	"publish",
-	"subscribe",
+    "publish",
+    "subscribe",
     "heroku",
     "worker",
-	"dyno",
-	"nozomi"
+    "dyno",
+    "nozomi"
   ],
   "author": "financialforce",
   "license": "ISC",
   "dependencies": {
-    "amqplib": "0.5.1",
-    "lodash": "4.17.4"
+    "amqplib": "0.5.1"
   },
   "devDependencies": {
     "@ffres/eslint-config": "1.0.0",
@@ -38,8 +37,7 @@
     "nyc": "11.2.1",
     "proxyquire": "1.8.0",
     "sinon": "3.3.0",
-    "sinon-chai": "2.13.0",
-    "supertest": "3.0.0"
+    "sinon-chai": "2.13.0"
   },
   "nyc": {
     "check-coverage": true,

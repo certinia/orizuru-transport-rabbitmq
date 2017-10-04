@@ -11,16 +11,16 @@ describe('index.js', () => {
 
 		// given - when
 		const
-			mockServer = { mock: 'mockServer' },
-			mockHandler = { mock: 'mockHandler' },
+			mockPublish = { send: 'mockPublish' },
+			mockSubscribe = { handle: 'mockSubscribe' },
 			index = proxyquire(root + '/src/lib/index', {
-				['./index/server']: mockServer,
-				['./index/handler']: mockHandler
+				['./index/publish']: mockPublish,
+				['./index/subscribe']: mockSubscribe
 			});
 
 		// then
-		expect(index.Server).to.eql(mockServer);
-		expect(index.Handler).to.eql(mockHandler);
+		expect(index.publish).to.eql(mockPublish.send);
+		expect(index.subscribe).to.eql(mockSubscribe.handle);
 
 	});
 

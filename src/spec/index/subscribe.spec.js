@@ -7,9 +7,9 @@ const
 	chaiAsPromised = require('chai-as-promised'),
 	sinon = require('sinon'),
 
-	Amqp = require(root + '/src/lib/index/messaging/amqp'),
+	Amqp = require(root + '/src/lib/index/shared/amqp'),
 
-	Subscriber = require(root + '/src/lib/index/messaging/subscribe'),
+	Subscriber = require(root + '/src/lib/index/subscribe'),
 
 	mocks = {},
 
@@ -20,7 +20,7 @@ const
 chai.use(sinonChai);
 chai.use(chaiAsPromised);
 
-describe('index/messaging/subscribe.js', () => {
+describe('index/subscribe.js', () => {
 
 	beforeEach(() => {
 		mocks.Amqp = {
@@ -57,7 +57,7 @@ describe('index/messaging/subscribe.js', () => {
 			});
 
 			// when
-			return Subscriber.handle({ schemaName: topic, handler: mocks.handler })
+			return Subscriber.handle({ eventName: topic, handler: mocks.handler })
 				// then
 				.then(() => {
 					expect(mocks.Amqp.apply).to.have.been.calledOnce;
@@ -90,7 +90,7 @@ describe('index/messaging/subscribe.js', () => {
 			});
 
 			// when
-			return expect(Subscriber.handle({ schemaName: topic, handler: mocks.handler })).to.be.rejectedWith('test')
+			return expect(Subscriber.handle({ eventName: topic, handler: mocks.handler })).to.be.rejectedWith('test')
 				// then
 				.then(() => {
 					expect(mocks.Amqp.apply).to.have.been.calledOnce;

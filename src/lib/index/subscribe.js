@@ -1,7 +1,7 @@
 'use strict';
 
 const
-	Amqp = require('./amqp'),
+	Amqp = require('./shared/amqp'),
 
 	subscribeAction = ({ topic, handler, channel }) => {
 		// Ensure the topic exists
@@ -23,9 +23,9 @@ const
 		});
 	},
 
-	handle = ({ schemaName, handler }) => {
+	handle = ({ eventName, handler }) => {
 		// Opens a connection to the RabbitMQ server, and subscribes to the topic
-		return Amqp.apply(channel => subscribeAction({ topic: schemaName, handler, channel }));
+		return Amqp.apply(channel => subscribeAction({ topic: eventName, handler, channel }));
 	};
 
 module.exports = {

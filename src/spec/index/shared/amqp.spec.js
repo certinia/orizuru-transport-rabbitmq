@@ -23,7 +23,7 @@ const
 chai.use(sinonChai);
 chai.use(chaiAsPromised);
 
-describe('index/messaging/amqp.js', () => {
+describe('index/shared/amqp.js', () => {
 
 	let AmqpService;
 
@@ -39,11 +39,11 @@ describe('index/messaging/amqp.js', () => {
 			connect: sandbox.stub(amqp, 'connect').resolves(mocks.connection)
 		};
 
-		AmqpService = require(root + '/src/lib/index/messaging/amqp');
+		AmqpService = require(root + '/src/lib/index/shared/amqp');
 	});
 
 	afterEach(() => {
-		const amqpServicePath = require.resolve(root + '/src/lib/index/messaging/amqp');
+		const amqpServicePath = require.resolve(root + '/src/lib/index/shared/amqp');
 		delete require.cache[amqpServicePath];
 
 		sandbox.restore();

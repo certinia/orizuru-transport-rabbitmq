@@ -6,9 +6,9 @@ const
 	sinonChai = require('sinon-chai'),
 	sinon = require('sinon'),
 
-	Amqp = require(root + '/src/lib/index/messaging/amqp'),
+	Amqp = require(root + '/src/lib/index/shared/amqp'),
 
-	Publisher = require(root + '/src/lib/index/messaging/publish'),
+	Publisher = require(root + '/src/lib/index/publish'),
 
 	mocks = {},
 
@@ -17,7 +17,7 @@ const
 
 chai.use(sinonChai);
 
-describe('index/messaging/publish.js', () => {
+describe('index/publish.js', () => {
 
 	beforeEach(() => {
 		mocks.Amqp = {
@@ -38,7 +38,7 @@ describe('index/messaging/publish.js', () => {
 
 			// given
 			const
-				schemaName = 'TestTopic',
+				eventName = 'TestTopic',
 				buffer = 'TestBuffer';
 
 			mocks.Amqp.apply.callsFake(action => {
@@ -46,11 +46,11 @@ describe('index/messaging/publish.js', () => {
 			});
 
 			// when
-			return Publisher.send({ schemaName, buffer })
+			return Publisher.send({ eventName, buffer })
 				// then
 				.then(() => {
 					expect(mocks.channel.sendToQueue).to.be.calledOnce;
-					expect(mocks.channel.sendToQueue).to.be.calledWith(schemaName, buffer);
+					expect(mocks.channel.sendToQueue).to.be.calledWith(eventName, buffer);
 				});
 		});
 

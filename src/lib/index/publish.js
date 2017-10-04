@@ -1,10 +1,10 @@
 'use strict';
 
 const
-	Amqp = require('./amqp'),
+	Amqp = require('./shared/amqp'),
 
-	send = ({ schemaName, buffer }) => {
-		return Amqp.apply(channel => channel.sendToQueue(schemaName, buffer));
+	send = ({ eventName, buffer }) => {
+		return Amqp.apply(channel => channel.sendToQueue(eventName, buffer));
 	};
 
 module.exports = {

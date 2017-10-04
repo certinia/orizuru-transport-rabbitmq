@@ -1,25 +1,36 @@
 'use strict';
 /**
  * The Index file for project.
- * Returns the Server and Handler classes.
+ * Returns the publish and subscribe methods.
+ * 
+ * These define the API for a nozomi transport layer.
+ * In this case, the transport uses rabbitmq.
+ * 
  * @module index
- * @see module:index/server
- * @see module:index/handler
  */
 
 const
-	Server = require('./index/server'),
-	Handler = require('./index/handler');
+	publish = require('./index/publish'),
+	subscribe = require('./index/subscribe');
 
 module.exports = {
 	/**
-	 * Server
-	 * @see module:index/server~Server
+	 * Publish
+	 * 
+	 * @example
+	 * TODO
+	 * 
+	 * @param {object} message - { eventName, buffer }
+	 * 
 	 */
-	Server,
+	publish: publish.send,
 	/**
-	 * Handler
-	 * @see module:index/handler~Handler
+	 * Subscribe
+	 * 
+	 * @example
+	 * TODO
+	 * 
+	 * @param {object} subscriberConfig - { eventName, handler }
 	 */
-	Handler
+	subscribe: subscribe.handle
 };
