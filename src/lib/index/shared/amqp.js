@@ -1,14 +1,15 @@
 'use strict';
 
 const
-	amqp = require('amqplib');
+	amqp = require('amqplib'),
+	{ validate } = require('./configValidator');
 
 let connection;
 
 class Amqp {
 
-	static apply(action) {
-		const url = process.env.CLOUDAMQP_URL || 'amqp://localhost';
+	static apply(action, config) {
+		validate(config);
 
 		return Promise.resolve()
 			.then(() => {
@@ -19,7 +20,7 @@ class Amqp {
 				}
 
 				// Create a new RabbitMQ connection
-				return amqp.connect(url)
+				return amqp.connect(config.cloudamqpUrl)
 					.then(newConnection => {
 						connection = newConnection;
 						return connection;

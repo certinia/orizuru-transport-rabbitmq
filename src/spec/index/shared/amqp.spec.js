@@ -8,12 +8,7 @@ const
 	sinon = require('sinon'),
 	amqp = require('amqplib'),
 
-	initialValues = {
-		env: { CLOUDAMQP_URL: process.env.CLOUDAMQP_URL }
-	},
-	testValues = {
-		env: { CLOUDAMQP_URL: 'testCloudamqpUrl' }
-	},
+	configValidator = require(root + '/src/lib/index/shared/configValidator'),
 
 	mocks = {},
 
@@ -28,8 +23,7 @@ describe('index/shared/amqp.js', () => {
 	let AmqpService;
 
 	beforeEach(() => {
-		process.env.CLOUDAMQP_URL = testValues.env.CLOUDAMQP_URL;
-
+		sandbox.stub(configValidator, 'validate').returns(undefined);
 		mocks.action = sandbox.stub();
 		mocks.channel = sandbox.stub();
 		mocks.connection = {
@@ -38,16 +32,16 @@ describe('index/shared/amqp.js', () => {
 		mocks.amqp = {
 			connect: sandbox.stub(amqp, 'connect').resolves(mocks.connection)
 		};
-
+		mocks.config = {
+			cloudamqpUrl: 'test'
+		};
 		AmqpService = require(root + '/src/lib/index/shared/amqp');
 	});
 
 	afterEach(() => {
 		const amqpServicePath = require.resolve(root + '/src/lib/index/shared/amqp');
 		delete require.cache[amqpServicePath];
-
 		sandbox.restore();
-		process.env.CLOUDAMQP_URL = initialValues.env.CLOUDAMQP_URL;
 	});
 
 	describe('apply', () => {
@@ -59,12 +53,12 @@ describe('index/shared/amqp.js', () => {
 				mocks.amqp.connect.rejects(new Error('bad'));
 
 				// when
-				return expect(AmqpService.apply(mocks.action))
+				return expect(AmqpService.apply(mocks.action, mocks.config))
 					.to.eventually.be.rejectedWith('bad')
 					// then
 					.then(() => {
 						expect(mocks.amqp.connect).to.have.been.calledOnce;
-						expect(mocks.amqp.connect).to.have.been.calledWith(testValues.env.CLOUDAMQP_URL);
+						expect(mocks.amqp.connect).to.have.been.calledWith(mocks.config.cloudamqpUrl);
 						expect(mocks.connection.createChannel).to.have.been.notCalled;
 						expect(mocks.action).to.have.been.notCalled;
 					});
@@ -75,12 +69,12 @@ describe('index/shared/amqp.js', () => {
 				mocks.connection.createChannel.rejects(new Error('bad'));
 
 				// when
-				return expect(AmqpService.apply(mocks.action))
+				return expect(AmqpService.apply(mocks.action, mocks.config))
 					.to.eventually.be.rejectedWith('bad')
 					// then
 					.then(() => {
 						expect(mocks.amqp.connect).to.have.been.calledOnce;
-						expect(mocks.amqp.connect).to.have.been.calledWith(testValues.env.CLOUDAMQP_URL);
+						expect(mocks.amqp.connect).to.have.been.calledWith(mocks.config.cloudamqpUrl);
 						expect(mocks.connection.createChannel).to.have.been.calledOnce;
 						expect(mocks.action).to.have.been.notCalled;
 					});
@@ -91,12 +85,12 @@ describe('index/shared/amqp.js', () => {
 				mocks.action.rejects(new Error('bad'));
 
 				// when
-				return expect(AmqpService.apply(mocks.action))
+				return expect(AmqpService.apply(mocks.action, mocks.config))
 					.to.eventually.be.rejectedWith('bad')
 					// then
 					.then(() => {
 						expect(mocks.amqp.connect).to.have.been.calledOnce;
-						expect(mocks.amqp.connect).to.have.been.calledWith(testValues.env.CLOUDAMQP_URL);
+						expect(mocks.amqp.connect).to.have.been.calledWith(mocks.config.cloudamqpUrl);
 						expect(mocks.connection.createChannel).to.have.been.calledOnce;
 						expect(mocks.action).to.have.been.calledOnce;
 						expect(mocks.action).to.have.been.calledWith(mocks.channel);
@@ -107,12 +101,12 @@ describe('index/shared/amqp.js', () => {
 
 		it('should invoke the action', () => {
 			// given/when
-			return expect(AmqpService.apply(mocks.action))
+			return expect(AmqpService.apply(mocks.action, mocks.config))
 				.to.eventually.be.fulfilled
 				// then
 				.then(() => {
 					expect(mocks.amqp.connect).to.have.been.calledOnce;
-					expect(mocks.amqp.connect).to.have.been.calledWith(testValues.env.CLOUDAMQP_URL);
+					expect(mocks.amqp.connect).to.have.been.calledWith(mocks.config.cloudamqpUrl);
 					expect(mocks.connection.createChannel).to.have.been.calledOnce;
 					expect(mocks.action).to.have.been.calledOnce;
 					expect(mocks.action).to.have.been.calledWith(mocks.channel);
@@ -121,33 +115,18 @@ describe('index/shared/amqp.js', () => {
 
 		it('should lazy load the connection', () => {
 			// given/when
-			return expect(AmqpService.apply(mocks.action).then(() => AmqpService.apply(mocks.action)))
+			return expect(AmqpService.apply(mocks.action, mocks.config).then(() => AmqpService.apply(mocks.action)))
 				.to.eventually.be.fulfilled
 				// then
 				.then(() => {
 					expect(mocks.amqp.connect).to.have.been.calledOnce;
-					expect(mocks.amqp.connect).to.have.been.calledWith(testValues.env.CLOUDAMQP_URL);
+					expect(mocks.amqp.connect).to.have.been.calledWith(mocks.config.cloudamqpUrl);
 					expect(mocks.connection.createChannel).to.have.been.calledTwice;
 					expect(mocks.action).to.have.been.calledTwice;
 					expect(mocks.action).to.have.been.calledWith(mocks.channel);
 				});
 		});
 
-		it('should use localhost if CLOUDAMQP_URL is not supplied', () => {
-			// given
-			delete process.env.CLOUDAMQP_URL;
-
-			// when
-			return expect(AmqpService.apply(mocks.action))
-				.to.eventually.be.fulfilled
-				// then
-				.then(() => {
-					expect(mocks.amqp.connect).to.have.been.calledOnce;
-					expect(mocks.amqp.connect).to.have.been.calledWith('amqp://localhost');
-					expect(mocks.connection.createChannel).to.have.been.calledOnce;
-					expect(mocks.action).to.have.been.calledOnce;
-					expect(mocks.action).to.have.been.calledWith(mocks.channel);
-				});
-		});
 	});
+
 });

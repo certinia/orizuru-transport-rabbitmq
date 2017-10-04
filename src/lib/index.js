@@ -18,10 +18,13 @@ module.exports = {
 	 * Publish
 	 * 
 	 * @example
-	 * let buffer = ...;
-	 * index.publish({ eventName: 'test', buffer });
+	 * let buffer = ...,
+	 * 	config = {
+	 * 		cloudamqpUrl: 'amqp://localhost'
+	 * 	}
+	 * index.publish({ eventName: 'test', buffer, config });
 	 * 
-	 * @param {object} message - { eventName, buffer }
+	 * @param {object} message - { eventName, buffer, config }
 	 * 
 	 */
 	publish: config => publish.send(config),
@@ -32,10 +35,13 @@ module.exports = {
 	 * let handler = (buffer) => 
 	 * 	{
 	 * 		console.log(buffer);
-	 * 	};
-	 * index.subscribe({ eventName: 'test', handler });
+	 * 	},
+	 * 	config = {
+	 * 		cloudamqpUrl: 'amqp://localhost'
+	 * 	}
+	 * index.subscribe({ eventName: 'test', handler, config });
 	 * 
-	 * @param {object} subscriberConfig - { eventName, handler }
+	 * @param {object} subscriberConfig - { eventName, handler, config }
 	 */
 	subscribe: config => subscribe.handle(config)
 };

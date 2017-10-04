@@ -23,9 +23,9 @@ const
 		});
 	},
 
-	handle = ({ eventName, handler }) => {
+	handle = ({ eventName, handler, config }) => {
 		// Opens a connection to the RabbitMQ server, and subscribes to the topic
-		return Amqp.apply(channel => subscribeAction({ topic: eventName, handler, channel }));
+		return Amqp.apply(channel => subscribeAction({ topic: eventName, handler, channel }), config);
 	};
 
 module.exports = {

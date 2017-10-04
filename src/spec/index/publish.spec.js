@@ -11,6 +11,7 @@ const
 	Publisher = require(root + '/src/lib/index/publish'),
 
 	mocks = {},
+	anyFunction = sinon.match.func,
 
 	sandbox = sinon.sandbox.create(),
 	expect = chai.expect;
@@ -39,16 +40,19 @@ describe('index/publish.js', () => {
 			// given
 			const
 				eventName = 'TestTopic',
-				buffer = 'TestBuffer';
+				buffer = 'TestBuffer',
+				config = 'test';
 
 			mocks.Amqp.apply.callsFake(action => {
 				return Promise.resolve(action(mocks.channel));
 			});
 
 			// when
-			return Publisher.send({ eventName, buffer })
+			return Publisher.send({ eventName, buffer, config })
 				// then
 				.then(() => {
+					expect(mocks.Amqp.apply).to.have.been.calledOnce;
+					expect(mocks.Amqp.apply).to.have.been.calledWith(anyFunction, config);
 					expect(mocks.channel.sendToQueue).to.be.calledOnce;
 					expect(mocks.channel.sendToQueue).to.be.calledWith(eventName, buffer);
 				});

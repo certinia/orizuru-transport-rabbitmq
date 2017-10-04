@@ -24,7 +24,8 @@
   "author": "financialforce",
   "license": "ISC",
   "dependencies": {
-    "amqplib": "0.5.1"
+    "amqplib": "0.5.1",
+    "lodash": "4.17.4"
   },
   "devDependencies": {
     "@ffres/eslint-config": "1.0.0",

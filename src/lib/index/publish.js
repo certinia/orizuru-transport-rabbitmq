@@ -3,8 +3,8 @@
 const
 	Amqp = require('./shared/amqp'),
 
-	send = ({ eventName, buffer }) => {
-		return Amqp.apply(channel => channel.sendToQueue(eventName, buffer));
+	send = ({ eventName, buffer, config }) => {
+		return Amqp.apply(channel => channel.sendToQueue(eventName, buffer), config);
 	};
 
 module.exports = {

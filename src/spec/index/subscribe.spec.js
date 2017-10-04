@@ -45,7 +45,8 @@ describe('index/subscribe.js', () => {
 			// given
 			const
 				topic = 'TestTopic',
-				message = { content: 'TestMessage' };
+				message = { content: 'TestMessage' },
+				config = 'test';
 
 			mocks.channel.consume.callsFake((topic, callback) => {
 				return callback(message);
@@ -57,11 +58,11 @@ describe('index/subscribe.js', () => {
 			});
 
 			// when
-			return Subscriber.handle({ eventName: topic, handler: mocks.handler })
+			return Subscriber.handle({ eventName: topic, handler: mocks.handler, config })
 				// then
 				.then(() => {
 					expect(mocks.Amqp.apply).to.have.been.calledOnce;
-					expect(mocks.Amqp.apply).to.have.been.calledWith(anyFunction);
+					expect(mocks.Amqp.apply).to.have.been.calledWith(anyFunction, config);
 					expect(mocks.channel.ack).to.have.been.calledOnce;
 					expect(mocks.channel.ack).to.have.been.calledWith(message);
 					expect(mocks.channel.assertQueue).to.have.been.calledOnce;
