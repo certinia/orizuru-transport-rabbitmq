@@ -1,5 +1,5 @@
 {
-  "name": "@ffres/nozomi-transport-rabbitmq",
+  "name": "@financialforcedev/nozomi-transport-rabbitmq",
   "version": "0.0.0",
   "description": "Rabbitmq transport for nozomi server",
   "main": "src/lib/index.js",
