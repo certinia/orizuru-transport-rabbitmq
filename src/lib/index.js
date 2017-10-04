@@ -25,7 +25,7 @@ module.exports = {
 	 * index.publish({ eventName: 'test', buffer, config });
 	 * 
 	 * @param {object} message - { eventName, buffer, config }
-	 * 
+	 * @returns {Promise}
 	 */
 	publish: config => publish.send(config),
 	/**
@@ -42,6 +42,7 @@ module.exports = {
 	 * index.subscribe({ eventName: 'test', handler, config });
 	 * 
 	 * @param {object} subscriberConfig - { eventName, handler, config }
+	 * @returns {Promise}
 	 */
 	subscribe: config => subscribe.handle(config)
 };
