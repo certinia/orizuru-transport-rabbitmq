@@ -13,5 +13,5 @@
 'use strict';
 
 module.exports = {
-	'extends': '@ffres'
+	'extends': '@financialforcedev'
 };
