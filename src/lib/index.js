@@ -71,8 +71,8 @@ module.exports = {
 	 * index.subscribe({ eventName: 'test', handler, config });
 	 * 
 	 * @param {object} subscriberConfig - { eventName, handler, config }
-	 * @param {object} subscriberConfig.eventName - the name of the event to listen for
-	 * @param {object} subscriberConfig.handler - handler function called when the event is heard
+	 * @param {string} subscriberConfig.eventName - the name of the event to listen for
+	 * @param {function} subscriberConfig.handler - handler function called when the event is heard
 	 * @param {object} subscriberConfig.config - config object
 	 * @returns {Promise}
 	 */
