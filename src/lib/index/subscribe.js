@@ -38,14 +38,16 @@ const
 			return Promise.resolve()
 				.then(() => {
 					// Invoke the handler with the message
-					return handler(message.content);
+					try {
+						const handlerResult = handler(message.content);
+						Promise.resolve(handlerResult).catch(() => {
+							// swallow, you must handle/report errors within the handler function
+						});
+					} catch (err) {
+						// swallow
+					}
 				})
-				.then(
-					result => channel.ack(message),
-					err => channel.ack(message).then(() => {
-						throw err;
-					})
-				);
+				.then(result => channel.ack(message));
 		});
 	},
 

@@ -100,7 +100,7 @@ describe('index/subscribe.js', () => {
 				});
 		});
 
-		it('should handle handler errors', () => {
+		it('should swallow handler errors when a returned promise rejects', () => {
 
 			// given
 			const
@@ -117,7 +117,40 @@ describe('index/subscribe.js', () => {
 			});
 
 			// when
-			return expect(Subscriber.handle({ eventName: topic, handler: mocks.handler })).to.be.rejectedWith('test')
+			return expect(Subscriber.handle({ eventName: topic, handler: mocks.handler })).to.be.fulfilled
+				// then
+				.then(() => {
+					expect(mocks.Amqp.apply).to.have.been.calledOnce;
+					expect(mocks.Amqp.apply).to.have.been.calledWith(anyFunction);
+					expect(mocks.channel.ack).to.have.been.calledOnce;
+					expect(mocks.channel.ack).to.have.been.calledWith(message);
+					expect(mocks.channel.assertQueue).to.have.been.calledOnce;
+					expect(mocks.channel.assertQueue).to.have.been.calledWith(topic);
+					expect(mocks.channel.consume).to.have.been.calledOnce;
+					expect(mocks.channel.consume).to.have.been.calledWith(topic, anyFunction);
+					expect(mocks.handler).to.have.been.calledOnce;
+					expect(mocks.handler).to.have.been.calledWith(message.content);
+				});
+		});
+
+		it('should swallow handler errors when an error is thrown', () => {
+
+			// given
+			const
+				topic = 'TestTopic',
+				message = { content: 'TestMessage' };
+
+			mocks.channel.consume.callsFake((topic, callback) => {
+				return callback(message);
+			});
+			mocks.channel.ack.resolves();
+			mocks.handler.throws(new Error('test'));
+			mocks.Amqp.apply.callsFake(action => {
+				return Promise.resolve(action(mocks.channel));
+			});
+
+			// when
+			return expect(Subscriber.handle({ eventName: topic, handler: mocks.handler })).to.be.fulfilled
 				// then
 				.then(() => {
 					expect(mocks.Amqp.apply).to.have.been.calledOnce;
