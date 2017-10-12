@@ -167,4 +167,92 @@ describe('index/subscribe.js', () => {
 		});
 
 	});
+
+	describe('emitter', () => {
+
+		let errorEvents = [];
+
+		const listener = message => {
+			errorEvents.push(message);
+		};
+
+		beforeEach(() => {
+			Subscriber.emitter.addListener(Subscriber.emitter.ERROR, listener);
+		});
+
+		afterEach(() => {
+			Subscriber.emitter.removeListener(Subscriber.emitter.ERROR, listener);
+			errorEvents = [];
+		});
+
+		describe('should emit an error event', () => {
+
+			it('if subscribe throws an error', () => {
+
+				// given
+				mocks.Amqp.apply.callsFake(action => {
+					return Promise.reject(new Error('test error'));
+				});
+
+				// when - then
+				return expect(Subscriber.handle({})).to.be.rejected.then(() => {
+					expect(errorEvents).to.include('test error');
+				});
+
+			});
+
+			it('if handler function throws an error', () => {
+
+				// given
+				const
+					topic = 'TestTopic',
+					message = { content: 'TestMessage' };
+
+				mocks.channel.consume.callsFake((topic, callback) => {
+					return callback(message);
+				});
+				mocks.channel.ack.resolves();
+				mocks.handler.throws(new Error('test error'));
+				mocks.Amqp.apply.callsFake(action => {
+					return Promise.resolve(action(mocks.channel));
+				});
+
+				// when
+				return expect(Subscriber.handle({ eventName: topic, handler: mocks.handler })).to.be.fulfilled
+					// then
+					.then(() => {
+						expect(errorEvents).to.include('test error');
+					});
+
+			});
+
+			it('if handler function rejects', () => {
+
+				// given
+				const
+					topic = 'TestTopic',
+					message = { content: 'TestMessage' };
+
+				mocks.channel.consume.callsFake((topic, callback) => {
+					return callback(message);
+				});
+				mocks.channel.ack.resolves();
+				mocks.handler.rejects(new Error('test error'));
+				mocks.Amqp.apply.callsFake(action => {
+					return Promise.resolve(action(mocks.channel));
+				});
+
+				// when
+				return expect(Subscriber.handle({ eventName: topic, handler: mocks.handler })).to.be.fulfilled
+					// then
+					.then(() => {
+						expect(errorEvents).to.include('test error');
+					});
+
+			});
+
+		});
+
+	});
+
 });
