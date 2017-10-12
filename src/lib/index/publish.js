@@ -29,10 +29,23 @@
 const
 	Amqp = require('./shared/amqp'),
 
+	EventEmitter = require('events'),
+
+	ERROR_EVENT = 'error_event',
+
+	emitter = new EventEmitter(),
+
 	send = ({ eventName, buffer, config }) => {
-		return Amqp.apply(channel => channel.sendToQueue(eventName, buffer), config);
+		return Amqp.apply(channel => channel.sendToQueue(eventName, buffer), config)
+			.catch(err => {
+				emitter.emit(ERROR_EVENT, err.message);
+				throw err;
+			});
 	};
 
+emitter.ERROR = ERROR_EVENT;
+
 module.exports = {
-	send
+	send,
+	emitter
 };

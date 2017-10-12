@@ -37,10 +37,17 @@
 
 const
 	publish = require('./index/publish'),
-	subscribe = require('./index/subscribe');
+	subscribe = require('./index/subscribe'),
+
+	publishFunc = config => publish.send(config),
+	subscribeFunc = config => subscribe.handle(config);
+
+publishFunc.emitter = publish.emitter;
+subscribeFunc.emitter = subscribe.emitter;
 
 module.exports = {
 	/**
+	 * @func
 	 * Publish
 	 * 
 	 * @example
@@ -55,9 +62,13 @@ module.exports = {
 	 * @param {buffer} message.buffer - the message to send as a buffer
 	 * @param {object} message.config - config object
 	 * @returns {Promise}
+	 * 
+	 * @property {EventEmitter} emitter
+	 * @property {string} emitter.ERROR - the error event name
 	 */
-	publish: config => publish.send(config),
+	publish: publishFunc,
 	/**
+	 * @func
 	 * Subscribe
 	 * 
 	 * @example
@@ -70,11 +81,14 @@ module.exports = {
 	 * 	}
 	 * index.subscribe({ eventName: 'test', handler, config });
 	 * 
+	 * @property {EventEmitter} emitter
+	 * @property {string} emitter.ERROR - the error event name
+	 * 
 	 * @param {object} subscriberConfig - { eventName, handler, config }
 	 * @param {string} subscriberConfig.eventName - the name of the event to listen for
 	 * @param {function} subscriberConfig.handler - handler function called when the event is heard
 	 * @param {object} subscriberConfig.config - config object
 	 * @returns {Promise}
 	 */
-	subscribe: config => subscribe.handle(config)
+	subscribe: subscribeFunc
 };
