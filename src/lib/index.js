@@ -29,7 +29,7 @@
  * The Index file for project.
  * Returns the publish and subscribe methods.
  * 
- * These define the API for a nozomi transport layer.
+ * These define the API for a transport layer.
  * In this case, the transport uses rabbitmq.
  * 
  * @module index
