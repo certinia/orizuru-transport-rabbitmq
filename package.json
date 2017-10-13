@@ -1,6 +1,6 @@
 {
   "name": "@financialforcedev/orizuru-transport-rabbitmq",
-  "version": "1.2.0",
+  "version": "2.0.0",
   "description": "Rabbitmq transport for orizuru server",
   "main": "src/lib/index.js",
   "scripts": {
