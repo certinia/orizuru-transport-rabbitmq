@@ -31,6 +31,7 @@ const
 	chai = require('chai'),
 	sinonChai = require('sinon-chai'),
 	sinon = require('sinon'),
+	chaiAsPromised = require('chai-as-promised'),
 
 	Amqp = require(root + '/src/lib/index/shared/amqp'),
 
@@ -42,6 +43,7 @@ const
 	sandbox = sinon.sandbox.create(),
 	expect = chai.expect;
 
+chai.use(chaiAsPromised);
 chai.use(sinonChai);
 
 describe('index/publish.js', () => {
@@ -85,4 +87,42 @@ describe('index/publish.js', () => {
 		});
 
 	});
+
+	describe('emitter', () => {
+
+		let errorEvents = [];
+
+		const listener = message => {
+			errorEvents.push(message);
+		};
+
+		beforeEach(() => {
+			Publisher.emitter.addListener(Publisher.emitter.ERROR, listener);
+		});
+
+		afterEach(() => {
+			Publisher.emitter.removeListener(Publisher.emitter.ERROR, listener);
+			errorEvents = [];
+		});
+
+		describe('should emit an error event', () => {
+
+			it('if publish throws an error', () => {
+
+				// given
+				mocks.Amqp.apply.callsFake(action => {
+					return Promise.reject(new Error('test error'));
+				});
+
+				// when - then
+				return expect(Publisher.send({})).to.be.rejected.then(() => {
+					expect(errorEvents).to.include('test error');
+				});
+
+			});
+
+		});
+
+	});
+
 });

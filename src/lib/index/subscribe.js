@@ -29,6 +29,12 @@
 const
 	Amqp = require('./shared/amqp'),
 
+	EventEmitter = require('events'),
+
+	ERROR_EVENT = 'error_event',
+
+	emitter = new EventEmitter(),
+
 	subscribeAction = ({ topic, handler, channel }) => {
 		// Ensure the topic exists
 		channel.assertQueue(topic);
@@ -40,11 +46,11 @@ const
 					// Invoke the handler with the message
 					try {
 						const handlerResult = handler(message.content);
-						Promise.resolve(handlerResult).catch(() => {
-							// swallow, you must handle/report errors within the handler function
+						Promise.resolve(handlerResult).catch(err => {
+							emitter.emit(ERROR_EVENT, err.message);
 						});
 					} catch (err) {
-						// swallow
+						emitter.emit(ERROR_EVENT, err.message);
 					}
 				})
 				.then(result => channel.ack(message));
@@ -53,9 +59,16 @@ const
 
 	handle = ({ eventName, handler, config }) => {
 		// Opens a connection to the RabbitMQ server, and subscribes to the topic
-		return Amqp.apply(channel => subscribeAction({ topic: eventName, handler, channel }), config);
+		return Amqp.apply(channel => subscribeAction({ topic: eventName, handler, channel }), config)
+			.catch(err => {
+				emitter.emit(ERROR_EVENT, err.message);
+				throw err;
+			});
 	};
 
+emitter.ERROR = ERROR_EVENT;
+
 module.exports = {
-	handle
+	handle,
+	emitter
 };
