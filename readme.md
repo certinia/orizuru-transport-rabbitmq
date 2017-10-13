@@ -1,23 +1,23 @@
-# Nozomi Transport RabbitMQ.
+# Orizuru Transport RabbitMQ.
 
-Nozomi can use this library for transport via RabbitMQ.
+Orizuru can use this library for transport via RabbitMQ.
 
 ## Install
 
 ```
-$ npm install @financialforcedev/nozomi-transport-rabbitmq
+$ npm install @financialforcedev/orizuru-transport-rabbitmq
 ```
 
 ## Usage
 
-Use this dependency to specify the transport layer that ```@financialforcedev/nozomi``` uses as RabbitMQ.
+Use this dependency to specify the transport layer that ```@financialforcedev/orizuru``` uses as RabbitMQ.
 
 	const
-		// get classes from nozomi
-		{ Server, Handler, Publisher } = require('@financialforcedev/nozomi'),
+		// get classes from orizuru
+		{ Server, Handler, Publisher } = require('@financialforcedev/orizuru'),
 
 		// get the transport
-		transport = require('@financialforcedev/nozomi-transport-rabbitmq'),
+		transport = require('@financialforcedev/orizuru-transport-rabbitmq'),
 
 		// configure the transport
 		transportConfig = {
