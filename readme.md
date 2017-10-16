@@ -31,4 +31,4 @@ Use this dependency to specify the transport layer that ```@financialforcedev/or
 
 ## API Docs
 
-TODO
+Click to view [JSDoc API documents](http://htmlpreview.github.io/?https://github.com/financialforcedev/financialforcedev--orizuru-transport-rabbitmq/blob/master/doc/index.html).
