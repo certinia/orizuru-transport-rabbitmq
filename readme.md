@@ -1,6 +1,7 @@
 # Orizuru Transport RabbitMQ.
 
-Orizuru can use this library for transport via RabbitMQ.
+Orizuru Transport RabbitMQ is a transport library for the [Orizuru](https://www.npmjs.com/package/@financialforcedev/orizuru) framework.
+It is a thin wrapper around [amqplib](https://www.npmjs.com/package/amqplib) and allows Orizuru to publish and subscribe to events via [RabbitMQ](http://www.rabbitmq.com/).
 
 ## Install
 
