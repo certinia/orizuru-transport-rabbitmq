@@ -1,6 +1,7 @@
 # Orizuru Transport RabbitMQ.
 
 [![Build Status](https://travis-ci.org/financialforcedev/orizuru-transport-rabbitmq.svg?branch=master)](https://travis-ci.org/financialforcedev/orizuru-transport-rabbitmq)
+[![NSP Status](https://nodesecurity.io/orgs/ffres/projects/eb75f119-7db6-4f3a-93e5-c62dfed6bb2e/badge)](https://nodesecurity.io/orgs/ffres/projects/eb75f119-7db6-4f3a-93e5-c62dfed6bb2e)
 
 Orizuru Transport RabbitMQ is a transport library for the [Orizuru](https://www.npmjs.com/package/@financialforcedev/orizuru) framework.
 It is a thin wrapper around [amqplib](https://www.npmjs.com/package/amqplib) and allows Orizuru to publish and subscribe to events via [RabbitMQ](http://www.rabbitmq.com/).
