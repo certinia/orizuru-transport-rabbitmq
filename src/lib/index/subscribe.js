@@ -45,20 +45,10 @@ const
 		}
 		// Subscribe to the topic
 		return channel.consume(topic, message => {
-			return Promise.resolve()
-				.then(() => {
-					// Invoke the handler with the message, and return the result promise or a resolution
-					try {
-						const handlerResult = handler(message.content);
-						return Promise.resolve(handlerResult).catch(err => {
-							emitter.emit(ERROR_EVENT, err.message);
-						});
-					} catch (err) {
-						emitter.emit(ERROR_EVENT, err.message);
-					}
-					return Promise.resolve();
-				})
-				.then(result => channel.ack(message));
+			return Promise.resolve(message.content)
+				.then(handler)
+				.catch(err => emitter.emit(ERROR_EVENT, err.message))
+				.then(result => channel.ack(message)); // finally
 		});
 	},
 
