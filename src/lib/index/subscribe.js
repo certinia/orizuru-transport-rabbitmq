@@ -27,6 +27,7 @@
 'use strict';
 
 const
+	_ = require('lodash'),
 	Amqp = require('./shared/amqp'),
 
 	EventEmitter = require('events'),
@@ -35,31 +36,25 @@ const
 
 	emitter = new EventEmitter(),
 
-	subscribeAction = ({ topic, handler, channel }) => {
+	subscribeAction = ({ topic, handler, channel, config }) => {
 		// Ensure the topic exists
 		channel.assertQueue(topic);
-
+		// Set prefetch
+		if (config.prefetch && _.isInteger(config.prefetch)) {
+			channel.prefetch(config.prefetch);
+		}
 		// Subscribe to the topic
 		return channel.consume(topic, message => {
-			return Promise.resolve()
-				.then(() => {
-					// Invoke the handler with the message
-					try {
-						const handlerResult = handler(message.content);
-						Promise.resolve(handlerResult).catch(err => {
-							emitter.emit(ERROR_EVENT, err.message);
-						});
-					} catch (err) {
-						emitter.emit(ERROR_EVENT, err.message);
-					}
-				})
-				.then(result => channel.ack(message));
+			return Promise.resolve(message.content)
+				.then(handler)
+				.catch(err => emitter.emit(ERROR_EVENT, err.message))
+				.then(result => channel.ack(message)); // finally
 		});
 	},
 
 	handle = ({ eventName, handler, config }) => {
 		// Opens a connection to the RabbitMQ server, and subscribes to the topic
-		return Amqp.apply(channel => subscribeAction({ topic: eventName, handler, channel }), config)
+		return Amqp.apply(channel => subscribeAction({ topic: eventName, handler, channel, config }), config)
 			.catch(err => {
 				emitter.emit(ERROR_EVENT, err.message);
 				throw err;

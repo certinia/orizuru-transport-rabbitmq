@@ -55,7 +55,8 @@ describe('index/subscribe.js', () => {
 		mocks.channel = {
 			ack: sandbox.stub(),
 			assertQueue: sandbox.stub(),
-			consume: sandbox.stub()
+			consume: sandbox.stub(),
+			prefetch: sandbox.spy()
 		};
 		mocks.handler = sandbox.stub();
 	});
@@ -72,7 +73,7 @@ describe('index/subscribe.js', () => {
 			const
 				topic = 'TestTopic',
 				message = { content: 'TestMessage' },
-				config = 'test';
+				config = { test: 'test' };
 
 			mocks.channel.consume.callsFake((topic, callback) => {
 				return callback(message);
@@ -91,6 +92,7 @@ describe('index/subscribe.js', () => {
 					expect(mocks.Amqp.apply).to.have.been.calledWith(anyFunction, config);
 					expect(mocks.channel.ack).to.have.been.calledOnce;
 					expect(mocks.channel.ack).to.have.been.calledWith(message);
+					expect(mocks.channel.prefetch).to.have.not.been.called;
 					expect(mocks.channel.assertQueue).to.have.been.calledOnce;
 					expect(mocks.channel.assertQueue).to.have.been.calledWith(topic);
 					expect(mocks.channel.consume).to.have.been.calledOnce;
@@ -100,15 +102,57 @@ describe('index/subscribe.js', () => {
 				});
 		});
 
-		it('should swallow handler errors when a returned promise rejects', () => {
+		it('should set prefetch if supplied in the config', () => {
 
 			// given
 			const
 				topic = 'TestTopic',
-				message = { content: 'TestMessage' };
+				message = { content: 'TestMessage' },
+				config = {
+					test: 'test',
+					prefetch: 4
+				};
 
 			mocks.channel.consume.callsFake((topic, callback) => {
 				return callback(message);
+			});
+			mocks.channel.ack.resolves();
+			mocks.handler.resolves();
+			mocks.Amqp.apply.callsFake(action => {
+				return Promise.resolve(action(mocks.channel));
+			});
+
+			// when
+			return Subscriber.handle({ eventName: topic, handler: mocks.handler, config })
+				// then
+				.then(() => {
+					expect(mocks.Amqp.apply).to.have.been.calledOnce;
+					expect(mocks.Amqp.apply).to.have.been.calledWith(anyFunction, config);
+					expect(mocks.channel.ack).to.have.been.calledOnce;
+					expect(mocks.channel.ack).to.have.been.calledWith(message);
+					expect(mocks.channel.prefetch).to.have.been.calledOnce;
+					expect(mocks.channel.prefetch).to.have.been.calledWith(4);
+					expect(mocks.channel.assertQueue).to.have.been.calledOnce;
+					expect(mocks.channel.assertQueue).to.have.been.calledWith(topic);
+					expect(mocks.channel.consume).to.have.been.calledOnce;
+					expect(mocks.channel.consume).to.have.been.calledWith(topic, anyFunction);
+					expect(mocks.handler).to.have.been.calledOnce;
+					expect(mocks.handler).to.have.been.calledWith(message.content);
+				});
+		});
+
+		it('should swallow handler errors and resolve when a returned promise rejects', () => {
+
+			// given
+			const
+				topic = 'TestTopic',
+				message = { content: 'TestMessage' },
+				config = {
+					test: 'test'
+				};
+
+			mocks.channel.consume.callsFake((topic, callback) => {
+				return Promise.resolve(callback(message));
 			});
 			mocks.channel.ack.resolves();
 			mocks.handler.rejects(new Error('test'));
@@ -117,13 +161,14 @@ describe('index/subscribe.js', () => {
 			});
 
 			// when
-			return expect(Subscriber.handle({ eventName: topic, handler: mocks.handler })).to.be.fulfilled
+			return expect(Subscriber.handle({ eventName: topic, handler: mocks.handler, config })).to.be.fulfilled
 				// then
 				.then(() => {
 					expect(mocks.Amqp.apply).to.have.been.calledOnce;
 					expect(mocks.Amqp.apply).to.have.been.calledWith(anyFunction);
 					expect(mocks.channel.ack).to.have.been.calledOnce;
 					expect(mocks.channel.ack).to.have.been.calledWith(message);
+					expect(mocks.channel.prefetch).to.have.not.been.called;
 					expect(mocks.channel.assertQueue).to.have.been.calledOnce;
 					expect(mocks.channel.assertQueue).to.have.been.calledWith(topic);
 					expect(mocks.channel.consume).to.have.been.calledOnce;
@@ -138,7 +183,10 @@ describe('index/subscribe.js', () => {
 			// given
 			const
 				topic = 'TestTopic',
-				message = { content: 'TestMessage' };
+				message = { content: 'TestMessage' },
+				config = {
+					test: 'test'
+				};
 
 			mocks.channel.consume.callsFake((topic, callback) => {
 				return callback(message);
@@ -150,13 +198,14 @@ describe('index/subscribe.js', () => {
 			});
 
 			// when
-			return expect(Subscriber.handle({ eventName: topic, handler: mocks.handler })).to.be.fulfilled
+			return expect(Subscriber.handle({ eventName: topic, handler: mocks.handler, config })).to.be.fulfilled
 				// then
 				.then(() => {
 					expect(mocks.Amqp.apply).to.have.been.calledOnce;
 					expect(mocks.Amqp.apply).to.have.been.calledWith(anyFunction);
 					expect(mocks.channel.ack).to.have.been.calledOnce;
 					expect(mocks.channel.ack).to.have.been.calledWith(message);
+					expect(mocks.channel.prefetch).to.have.not.been.called;
 					expect(mocks.channel.assertQueue).to.have.been.calledOnce;
 					expect(mocks.channel.assertQueue).to.have.been.calledWith(topic);
 					expect(mocks.channel.consume).to.have.been.calledOnce;
@@ -206,7 +255,8 @@ describe('index/subscribe.js', () => {
 				// given
 				const
 					topic = 'TestTopic',
-					message = { content: 'TestMessage' };
+					message = { content: 'TestMessage' },
+					config = { test: 'test' };
 
 				mocks.channel.consume.callsFake((topic, callback) => {
 					return callback(message);
@@ -218,7 +268,7 @@ describe('index/subscribe.js', () => {
 				});
 
 				// when
-				return expect(Subscriber.handle({ eventName: topic, handler: mocks.handler })).to.be.fulfilled
+				return expect(Subscriber.handle({ eventName: topic, handler: mocks.handler, config })).to.be.fulfilled
 					// then
 					.then(() => {
 						expect(errorEvents).to.include('test error');
@@ -231,7 +281,8 @@ describe('index/subscribe.js', () => {
 				// given
 				const
 					topic = 'TestTopic',
-					message = { content: 'TestMessage' };
+					message = { content: 'TestMessage' },
+					config = { test: 'test' };
 
 				mocks.channel.consume.callsFake((topic, callback) => {
 					return callback(message);
@@ -243,7 +294,7 @@ describe('index/subscribe.js', () => {
 				});
 
 				// when
-				return expect(Subscriber.handle({ eventName: topic, handler: mocks.handler })).to.be.fulfilled
+				return expect(Subscriber.handle({ eventName: topic, handler: mocks.handler, config })).to.be.fulfilled
 					// then
 					.then(() => {
 						expect(errorEvents).to.include('test error');
