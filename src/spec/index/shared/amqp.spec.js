@@ -85,8 +85,8 @@ describe('index/shared/amqp.js', () => {
 					.then(() => {
 						expect(mocks.amqp.connect).to.have.been.calledOnce;
 						expect(mocks.amqp.connect).to.have.been.calledWith(mocks.config.cloudamqpUrl);
-						expect(mocks.connection.createChannel).to.have.been.notCalled;
-						expect(mocks.action).to.have.been.notCalled;
+						expect(mocks.connection.createChannel).to.have.not.been.called;
+						expect(mocks.action).to.have.not.been.called;
 					});
 			});
 
@@ -102,7 +102,7 @@ describe('index/shared/amqp.js', () => {
 						expect(mocks.amqp.connect).to.have.been.calledOnce;
 						expect(mocks.amqp.connect).to.have.been.calledWith(mocks.config.cloudamqpUrl);
 						expect(mocks.connection.createChannel).to.have.been.calledOnce;
-						expect(mocks.action).to.have.been.notCalled;
+						expect(mocks.action).to.have.not.been.called;
 					});
 			});
 
