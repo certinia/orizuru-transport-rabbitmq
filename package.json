@@ -5,8 +5,8 @@
   "main": "src/lib/index.js",
   "scripts": {
     "doc": "jsdoc src/lib -r -d doc  --readme readme.md",
-	"pretest": "eslint src",
-	"single-test": "nyc --all=false mocha",
+    "pretest": "eslint src",
+    "single-test": "nyc --all=false mocha",
     "test": "nyc --exclude src/example mocha --recursive src/spec"
   },
   "repository": {
@@ -29,7 +29,7 @@
     "lodash": "4.17.4"
   },
   "devDependencies": {
-    "@financialforcedev/eslint-config": "3.0.1",
+    "@financialforcedev/eslint-config": "3.2.0",
     "app-root-path": "2.0.1",
     "chai": "4.1.2",
     "chai-as-promised": "7.1.1",
