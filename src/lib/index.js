@@ -97,6 +97,9 @@ module.exports = {
 
 	/**
 	 * Closes the connection to RabbitMQ.
+	 * 
+	 * @func
+	 * close
 	 */
 	close: Amqp.close
 
