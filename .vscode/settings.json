@@ -1,12 +1,10 @@
 {
+	"beautify.config": "node_modules/@financialforcedev/eslint-config/.jsbeautifyrc",
 	"beautify.language": {
 		"js": {
 			"type": [
 				"javascript",
 				"json"
-			],
-			"filename": [
-				".jsbeautifyrc"
 			]
 		}
 	},
