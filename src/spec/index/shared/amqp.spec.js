@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2017, FinancialForce.com, inc
+ * Copyright (c) 2017-2018, FinancialForce.com, inc
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification, 
@@ -49,10 +49,13 @@ describe('index/shared/amqp.js', () => {
 	let AmqpService;
 
 	beforeEach(() => {
+
 		sandbox.stub(configValidator, 'validate').returns(undefined);
+
 		mocks.action = sandbox.stub();
 		mocks.channel = sandbox.stub();
 		mocks.connection = {
+			close: sandbox.stub(),
 			createChannel: sandbox.stub().resolves(mocks.channel)
 		};
 		mocks.amqp = {
@@ -61,7 +64,9 @@ describe('index/shared/amqp.js', () => {
 		mocks.config = {
 			cloudamqpUrl: 'test'
 		};
+
 		AmqpService = require(root + '/src/lib/index/shared/amqp');
+
 	});
 
 	afterEach(() => {
@@ -151,6 +156,34 @@ describe('index/shared/amqp.js', () => {
 					expect(mocks.action).to.have.been.calledTwice;
 					expect(mocks.action).to.have.been.calledWith(mocks.channel);
 				});
+		});
+
+	});
+
+	describe('close', () => {
+
+		it('should do nothing if the connection is undefined', () => {
+
+			// Given
+			// When
+			AmqpService.close();
+
+			// Then
+			expect(mocks.connection.close).to.not.have.been.called;
+
+		});
+
+		it('should close the connection', async () => {
+
+			// Given
+			await AmqpService.apply(mocks.action, mocks.config);
+
+			// When
+			AmqpService.close();
+
+			// Then
+			expect(mocks.connection.close).to.have.been.calledOnce;
+
 		});
 
 	});

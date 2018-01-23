@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2017, FinancialForce.com, inc
+ * Copyright (c) 2017-2018 FinancialForce.com, inc
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification, 
@@ -36,6 +36,7 @@
  */
 
 const
+	Amqp = require('./index/shared/amqp'),
 	publish = require('./index/publish'),
 	subscribe = require('./index/subscribe'),
 
@@ -46,6 +47,7 @@ publishFunc.emitter = publish.emitter;
 subscribeFunc.emitter = subscribe.emitter;
 
 module.exports = {
+
 	/**
 	 * @func
 	 * Publish
@@ -67,6 +69,7 @@ module.exports = {
 	 * @property {string} emitter.ERROR - the error event name
 	 */
 	publish: publishFunc,
+
 	/**
 	 * @func
 	 * Subscribe
@@ -90,5 +93,14 @@ module.exports = {
 	 * @param {object} subscriberConfig.config - config object
 	 * @returns {Promise}
 	 */
-	subscribe: subscribeFunc
+	subscribe: subscribeFunc,
+
+	/**
+	 * Closes the connection to RabbitMQ.
+	 * 
+	 * @func
+	 * close
+	 */
+	close: Amqp.close
+
 };
