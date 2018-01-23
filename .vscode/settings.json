@@ -10,7 +10,11 @@
 			]
 		}
 	},
-	"beautify.ignore": ["**/.vscode/*","**/force/*","package.json"],
+	"beautify.ignore": [
+		"**/.vscode/*",
+		"**/force/*",
+		"package.json"
+	],
 	"editor.detectIndentation": false,
 	"editor.formatOnSave": true,
 	"editor.insertSpaces": false,
@@ -23,11 +27,15 @@
 		"**/.DS_Store": true,
 		"**/coverage": true
 	},
+	"files.insertFinalNewline": true,
 	"lcov.path": "coverage/lcov.info",
-	"lcov.watch": [{
-		"pattern": "**/*.js",
-		"command": "npm test"
-	}],
+	"lcov.watch": [
+		{
+			"pattern": "**/*.js",
+			"command": "npm test"
+		}
+	],
+	"runCurrentTest.run": "npm run single-test -- ${relativeTestPath}",
 	"terminal.integrated.scrollback": 10000,
 	"workbench.colorCustomizations": {
 		"activityBar.foreground": "#007DFF"
