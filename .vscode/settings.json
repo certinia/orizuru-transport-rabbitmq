@@ -1,18 +1,4 @@
 {
-	"beautify.config": "node_modules/@financialforcedev/eslint-config/.jsbeautifyrc",
-	"beautify.language": {
-		"js": {
-			"type": [
-				"javascript",
-				"json"
-			]
-		}
-	},
-	"beautify.ignore": [
-		"**/.vscode/*",
-		"**/force/*",
-		"package.json"
-	],
 	"editor.detectIndentation": false,
 	"editor.formatOnSave": true,
 	"editor.insertSpaces": false,
@@ -26,6 +12,7 @@
 		"**/coverage": true
 	},
 	"files.insertFinalNewline": true,
+	"javascript.format.enable": true,
 	"lcov.path": "coverage/lcov.info",
 	"lcov.watch": [
 		{
