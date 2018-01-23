@@ -28,13 +28,17 @@
 
 const
 	root = require('app-root-path'),
+	chai = require('chai'),
 	sinon = require('sinon'),
+	sinonChai = require('sinon-chai'),
 	proxyquire = require('proxyquire'),
 
-	{ calledOnce, calledWith } = sinon.assert,
+	expect = chai.expect,
 
 	sandbox = sinon.sandbox.create(),
 	restore = sandbox.restore.bind(sandbox);
+
+chai.use(sinonChai);
 
 describe('index.js', () => {
 
@@ -56,10 +60,12 @@ describe('index.js', () => {
 		index.subscribe('test2');
 
 		// then
-		calledOnce(mockPublish.send);
-		calledWith(mockPublish.send, 'test1');
-		calledOnce(mockSubscribe.handle);
-		calledWith(mockSubscribe.handle, 'test2');
+		expect(mockPublish.send).to.have.been.calledOnce;
+		expect(mockPublish.send).to.have.been.calledWith('test1');
+		expect(mockSubscribe.handle).to.have.been.calledOnce;
+		expect(mockSubscribe.handle).to.have.been.calledWith('test2');
+
+		expect(index.close).to.be.a('function');
 
 	});
 
