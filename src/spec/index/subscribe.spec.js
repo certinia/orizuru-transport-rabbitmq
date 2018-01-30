@@ -80,7 +80,7 @@ describe('index/subscribe.js', () => {
 
 	describe('subscribe', () => {
 
-		it('should supply messages to the handler', () => {
+		it('should supply messages to the handler', async () => {
 
 			// given
 			const
@@ -97,25 +97,24 @@ describe('index/subscribe.js', () => {
 			});
 
 			// when
-			return subscribe.handle({ eventName: topic, handler: mocks.handler, config })
-				// then
-				.then(() => {
-					expect(mocks.amqp.connect).to.have.been.calledOnce;
-					expect(mocks.amqp.connect).to.have.been.calledWith(config.cloudamqpUrl);
-					expect(mocks.connection.createChannel).to.have.been.calledOnce;
-					expect(mocks.channel.ack).to.have.been.calledOnce;
-					expect(mocks.channel.ack).to.have.been.calledWith(message);
-					expect(mocks.channel.prefetch).to.have.not.been.called;
-					expect(mocks.channel.assertQueue).to.have.been.calledOnce;
-					expect(mocks.channel.assertQueue).to.have.been.calledWith(topic);
-					expect(mocks.channel.consume).to.have.been.calledOnce;
-					expect(mocks.channel.consume).to.have.been.calledWith(topic, anyFunction);
-					expect(mocks.handler).to.have.been.calledOnce;
-					expect(mocks.handler).to.have.been.calledWith(message.content);
-				});
+			await expect(subscribe.handle({ eventName: topic, handler: mocks.handler, config })).to.be.fulfilled;
+
+			// then
+			expect(mocks.amqp.connect).to.have.been.calledOnce;
+			expect(mocks.amqp.connect).to.have.been.calledWith(config.cloudamqpUrl);
+			expect(mocks.connection.createChannel).to.have.been.calledOnce;
+			expect(mocks.channel.ack).to.have.been.calledOnce;
+			expect(mocks.channel.ack).to.have.been.calledWith(message);
+			expect(mocks.channel.prefetch).to.have.not.been.called;
+			expect(mocks.channel.assertQueue).to.have.been.calledOnce;
+			expect(mocks.channel.assertQueue).to.have.been.calledWith(topic);
+			expect(mocks.channel.consume).to.have.been.calledOnce;
+			expect(mocks.channel.consume).to.have.been.calledWith(topic, anyFunction);
+			expect(mocks.handler).to.have.been.calledOnce;
+			expect(mocks.handler).to.have.been.calledWith(message.content);
 		});
 
-		it('should set prefetch if supplied in the config', () => {
+		it('should set prefetch if supplied in the config', async () => {
 
 			// given
 			const
@@ -133,26 +132,24 @@ describe('index/subscribe.js', () => {
 			});
 
 			// when
-			return subscribe.handle({ eventName: topic, handler: mocks.handler, config })
-				// then
-				.then(() => {
-					expect(mocks.amqp.connect).to.have.been.calledOnce;
-					expect(mocks.amqp.connect).to.have.been.calledWith(config.cloudamqpUrl);
-					expect(mocks.connection.createChannel).to.have.been.calledOnce;
-					expect(mocks.channel.ack).to.have.been.calledOnce;
-					expect(mocks.channel.ack).to.have.been.calledWith(message);
-					expect(mocks.channel.prefetch).to.have.been.calledOnce;
-					expect(mocks.channel.prefetch).to.have.been.calledWith(4);
-					expect(mocks.channel.assertQueue).to.have.been.calledOnce;
-					expect(mocks.channel.assertQueue).to.have.been.calledWith(topic);
-					expect(mocks.channel.consume).to.have.been.calledOnce;
-					expect(mocks.channel.consume).to.have.been.calledWith(topic, anyFunction);
-					expect(mocks.handler).to.have.been.calledOnce;
-					expect(mocks.handler).to.have.been.calledWith(message.content);
-				});
+			await expect(subscribe.handle({ eventName: topic, handler: mocks.handler, config })).to.be.fulfilled;
+
+			expect(mocks.amqp.connect).to.have.been.calledOnce;
+			expect(mocks.amqp.connect).to.have.been.calledWith(config.cloudamqpUrl);
+			expect(mocks.connection.createChannel).to.have.been.calledOnce;
+			expect(mocks.channel.ack).to.have.been.calledOnce;
+			expect(mocks.channel.ack).to.have.been.calledWith(message);
+			expect(mocks.channel.prefetch).to.have.been.calledOnce;
+			expect(mocks.channel.prefetch).to.have.been.calledWith(4);
+			expect(mocks.channel.assertQueue).to.have.been.calledOnce;
+			expect(mocks.channel.assertQueue).to.have.been.calledWith(topic);
+			expect(mocks.channel.consume).to.have.been.calledOnce;
+			expect(mocks.channel.consume).to.have.been.calledWith(topic, anyFunction);
+			expect(mocks.handler).to.have.been.calledOnce;
+			expect(mocks.handler).to.have.been.calledWith(message.content);
 		});
 
-		it('should swallow handler errors and resolve when a returned promise rejects', () => {
+		it('should swallow handler errors and resolve when a returned promise rejects', async () => {
 
 			// given
 			const
@@ -169,22 +166,20 @@ describe('index/subscribe.js', () => {
 			});
 
 			// when
-			return expect(subscribe.handle({ eventName: topic, handler: mocks.handler, config })).to.be.fulfilled
-				// then
-				.then(() => {
-					expect(mocks.amqp.connect).to.have.been.calledOnce;
-					expect(mocks.amqp.connect).to.have.been.calledWith(config.cloudamqpUrl);
-					expect(mocks.connection.createChannel).to.have.been.calledOnce;
-					expect(mocks.channel.ack).to.have.been.calledOnce;
-					expect(mocks.channel.ack).to.have.been.calledWith(message);
-					expect(mocks.channel.prefetch).to.have.not.been.called;
-					expect(mocks.channel.assertQueue).to.have.been.calledOnce;
-					expect(mocks.channel.assertQueue).to.have.been.calledWith(topic);
-					expect(mocks.channel.consume).to.have.been.calledOnce;
-					expect(mocks.channel.consume).to.have.been.calledWith(topic, anyFunction);
-					expect(mocks.handler).to.have.been.calledOnce;
-					expect(mocks.handler).to.have.been.calledWith(message.content);
-				});
+			await expect(subscribe.handle({ eventName: topic, handler: mocks.handler, config })).to.be.fulfilled;
+
+			expect(mocks.amqp.connect).to.have.been.calledOnce;
+			expect(mocks.amqp.connect).to.have.been.calledWith(config.cloudamqpUrl);
+			expect(mocks.connection.createChannel).to.have.been.calledOnce;
+			expect(mocks.channel.ack).to.have.been.calledOnce;
+			expect(mocks.channel.ack).to.have.been.calledWith(message);
+			expect(mocks.channel.prefetch).to.have.not.been.called;
+			expect(mocks.channel.assertQueue).to.have.been.calledOnce;
+			expect(mocks.channel.assertQueue).to.have.been.calledWith(topic);
+			expect(mocks.channel.consume).to.have.been.calledOnce;
+			expect(mocks.channel.consume).to.have.been.calledWith(topic, anyFunction);
+			expect(mocks.handler).to.have.been.calledOnce;
+			expect(mocks.handler).to.have.been.calledWith(message.content);
 		});
 
 		it('should swallow handler errors when an error is thrown', async () => {
@@ -204,17 +199,57 @@ describe('index/subscribe.js', () => {
 			});
 
 			// when
-			expect(subscribe.handle({ eventName: topic, handler: mocks.handler, config })).to.be.fulfilled;
-			await expect(subscribe.handle({ eventName: topic, handler: mocks.handler, config })).to.be.fulfilled;
 			await expect(subscribe.handle({ eventName: topic, handler: mocks.handler, config })).to.be.fulfilled;
 
 			expect(mocks.amqp.connect).to.have.been.calledOnce;
-			expect(mocks.connection.createChannel).to.have.been.calledThrice;
-			expect(mocks.channel.ack).to.have.been.calledThrice;
+			expect(mocks.amqp.connect).to.have.been.calledWith(config.cloudamqpUrl);
+			expect(mocks.connection.createChannel).to.have.been.calledOnce;
+			expect(mocks.channel.ack).to.have.been.calledOnce;
+			expect(mocks.channel.ack).to.have.been.calledWith(message);
 			expect(mocks.channel.prefetch).to.have.not.been.called;
-			expect(mocks.channel.assertQueue).to.have.been.calledThrice;
-			expect(mocks.channel.consume).to.have.been.calledThrice;
-			expect(mocks.handler).to.have.been.calledThrice;
+			expect(mocks.channel.assertQueue).to.have.been.calledOnce;
+			expect(mocks.channel.assertQueue).to.have.been.calledWith(topic);
+			expect(mocks.channel.consume).to.have.been.calledOnce;
+			expect(mocks.channel.consume).to.have.been.calledWith(topic, anyFunction);
+			expect(mocks.handler).to.have.been.calledOnce;
+			expect(mocks.handler).to.have.been.calledWith(message.content);
+		});
+
+		it('should allow multiple subscribers', async () => {
+
+			// given
+			const
+				topic = 'TestTopic',
+				otherTopic = 'otherTopic',
+				message = { content: 'TestMessage' },
+				config = {
+					cloudamqpUrl: 'amqp://localhost'
+				};
+
+			mocks.channel.ack.resolves();
+			mocks.handler.throws(new Error('test'));
+			mocks.channel.consume.callsFake((topic, callback) => {
+				return callback(message);
+			});
+
+			// when
+			await expect(subscribe.handle({ eventName: topic, handler: mocks.handler, config })).to.be.fulfilled;
+			await expect(subscribe.handle({ eventName: otherTopic, handler: mocks.handler, config })).to.be.fulfilled;
+
+			expect(mocks.amqp.connect).to.have.been.calledOnce;
+			expect(mocks.amqp.connect).to.have.been.calledWith(config.cloudamqpUrl);
+			expect(mocks.connection.createChannel).to.have.been.calledTwice;
+			expect(mocks.channel.ack).to.have.been.calledTwice;
+			expect(mocks.channel.prefetch).to.have.not.been.calledTwice;
+			expect(mocks.channel.assertQueue).to.have.been.calledTwice;
+			expect(mocks.channel.assertQueue).to.have.been.calledWith(topic);
+			expect(mocks.channel.assertQueue).to.have.been.calledWith(otherTopic);
+			expect(mocks.channel.consume).to.have.been.calledTwice;
+			expect(mocks.channel.consume).to.have.been.calledWith(topic, anyFunction);
+			expect(mocks.channel.consume).to.have.been.calledWith(otherTopic, anyFunction);
+			expect(mocks.handler).to.have.been.calledTwice;
+			expect(mocks.handler).to.have.been.calledWith(message.content);
+			expect(mocks.handler).to.have.been.calledWith(message.content);
 		});
 
 	});

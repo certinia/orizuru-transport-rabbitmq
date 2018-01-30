@@ -97,7 +97,7 @@ describe('index/publish.js', () => {
 			expect(mocks.channel.sendToQueue).to.be.calledWith(eventName, buffer);
 		});
 
-		it('should reuse channels', async () => {
+		it('should reuse connections and channels', async () => {
 
 			// given
 			const
@@ -108,15 +108,13 @@ describe('index/publish.js', () => {
 				};
 
 			// when
-			publish.send({ eventName, buffer, config });
-			publish.send({ eventName, buffer, config });
 			await publish.send({ eventName, buffer, config });
 			await publish.send({ eventName, buffer, config });
 
 			expect(mocks.amqp.connect).to.have.been.calledOnce;
 			expect(mocks.amqp.connect).to.have.been.calledWith(config.cloudamqpUrl);
 			expect(mocks.connection.createChannel).to.have.been.calledOnce;
-			expect(mocks.channel.sendToQueue).to.have.callCount(4);
+			expect(mocks.channel.sendToQueue).to.have.been.calledTwice;
 		});
 
 	});

@@ -29,7 +29,6 @@
 const
 	_ = require('lodash'),
 	amqp = require('amqplib'),
-	{ Semaphore } = require('prex'),
 	{ validate } = require('./shared/configValidator'),
 
 	EventEmitter = require('events'),
@@ -38,9 +37,7 @@ const
 
 	emitter = new EventEmitter(),
 
-	subscribers = new Map(),
-
-	subscriberCreateSemaphore = new Semaphore(1);
+	subscribers = new Map();
 
 class Subscriber {
 
@@ -53,11 +50,11 @@ class Subscriber {
 		this.connection = await amqp.connect(this.config.cloudamqpUrl);
 	}
 
-	async subscribe({ eventName, handler }) {
+	async subscribe(queue, handler) {
 		const channel = await this.connection.createChannel();
 
 		// Ensure the topic exists
-		channel.assertQueue(eventName);
+		channel.assertQueue(queue);
 
 		// Set prefetch
 		if (this.config.prefetch && _.isInteger(this.config.prefetch)) {
@@ -65,43 +62,46 @@ class Subscriber {
 		}
 
 		// Subscribe to the topic
-		return channel.consume(eventName, message => {
-			return Promise.resolve(message.content)
-				.then(handler)
-				.catch(err => emitter.emit(ERROR_EVENT, err.message))
-				.then(result => channel.ack(message)); // finally
+		return channel.consume(queue, async (message) => {
+
+			try {
+				return await handler(message.content);
+			} catch (err) {
+				emitter.emit(ERROR_EVENT, err.message);
+				return err;
+			} finally {
+				await channel.ack(message);
+			}
+
 		});
 
 	}
 
-	close() {
-		this.connection.close();
+	async close() {
+		await this.connection.close();
+	}
+
+	static async newSubscriber(config) {
+		const subscriber = new Subscriber(config);
+		await subscriber.init();
+		return subscriber;
 	}
 
 }
 
-async function handle({ eventName, handler, config }) {
+async function handle({ eventName: queue, handler, config }) {
 
 	try {
+		let subscriberPromise = subscribers.get(config),
+			subscriber = null;
 
-		let subscriber = subscribers.get(config);
-
-		if (!subscriber) {
-			await subscriberCreateSemaphore.wait();
-			try {
-				subscriber = subscribers.get(config);
-				if (!subscriber) {
-					subscriber = new Subscriber(config);
-					await subscriber.init();
-					subscribers.set(config, subscriber);
-				}
-			} finally {
-				subscriberCreateSemaphore.release();
-			}
+		if (!subscriberPromise) {
+			subscriberPromise = Subscriber.newSubscriber(config);
+			subscribers.set(config, subscriberPromise);
 		}
 
-		return await subscriber.subscribe({ eventName, handler });
-
+		subscriber = await subscriberPromise;
+		return await subscriber.subscribe(queue, handler);
 	} catch (err) {
 		emitter.emit(ERROR_EVENT, err.message);
 		throw err;
@@ -111,7 +111,9 @@ async function handle({ eventName, handler, config }) {
 
 async function close() {
 	for (const entry of subscribers) {
-		await entry[1].close();
+		// Entry 1 is the Map's value.
+		const subscriber = await entry[1];
+		await subscriber.close();
 	}
 }
 
