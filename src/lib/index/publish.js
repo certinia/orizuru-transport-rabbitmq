@@ -82,7 +82,7 @@ async function send({ eventName, buffer, config }) {
 			}
 		}
 
-		await publisher.publish(eventName, buffer);
+		return await publisher.publish(eventName, buffer);
 
 	} catch (err) {
 		emitter.emit(ERROR_EVENT, err.message);
