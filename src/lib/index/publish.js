@@ -27,6 +27,7 @@
 'use strict';
 
 const
+	_ = require('lodash'),
 	amqp = require('amqplib'),
 	{ validate } = require('./shared/configValidator'),
 
@@ -42,7 +43,7 @@ class Publisher {
 
 	constructor(config) {
 		validate(config);
-		this.config = config;
+		this.config = _.cloneDeep(config);
 	}
 
 	async init() {

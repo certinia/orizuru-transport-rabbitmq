@@ -43,7 +43,7 @@ class Subscriber {
 
 	constructor(config) {
 		validate(config);
-		this.config = config;
+		this.config = _.cloneDeep(config);
 	}
 
 	async init() {

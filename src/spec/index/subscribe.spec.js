@@ -308,7 +308,7 @@ describe('index/subscribe.js', () => {
 
 		describe('should emit an error event', () => {
 
-			it('if subscribe throws an error', () => {
+			it('if subscribe throws an error', async () => {
 
 				// given
 				const
@@ -320,9 +320,9 @@ describe('index/subscribe.js', () => {
 				mocks.amqp.connect.throws(new Error('test error'));
 
 				// when - then
-				return expect(subscribe.handle({ eventName, handler: mocks.handler, config })).to.be.rejected.then(() => {
-					expect(errorEvents).to.include('test error');
-				});
+				await expect(subscribe.handle({ eventName, handler: mocks.handler, config })).to.be.rejected;
+
+				expect(errorEvents).to.include('test error');
 
 			});
 
