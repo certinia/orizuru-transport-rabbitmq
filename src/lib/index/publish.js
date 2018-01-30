@@ -27,7 +27,9 @@
 'use strict';
 
 const
-	Amqp = require('./shared/amqp'),
+	amqp = require('amqplib'),
+	{ Semaphore } = require('prex'),
+	{ validate } = require('./shared/configValidator'),
 
 	EventEmitter = require('events'),
 
@@ -35,17 +37,70 @@ const
 
 	emitter = new EventEmitter(),
 
-	send = ({ eventName, buffer, config }) => {
-		return Amqp.apply(channel => channel.sendToQueue(eventName, buffer), config)
-			.catch(err => {
-				emitter.emit(ERROR_EVENT, err.message);
-				throw err;
-			});
-	};
+	publishers = new Map(),
+
+	publisherCreateSemaphore = new Semaphore(1);
+
+class Publisher {
+
+	constructor(config) {
+		validate(config);
+		this.config = config;
+	}
+
+	async init() {
+		this.connection = await amqp.connect(this.config.cloudamqpUrl);
+		this.channel = await this.connection.createChannel();
+	}
+
+	publish(queue, buffer) {
+		return this.channel.sendToQueue(queue, buffer);
+	}
+
+	async close() {
+		await this.connection.close();
+	}
+
+}
+
+async function send({ eventName, buffer, config }) {
+
+	try {
+		let publisher = publishers.get(config);
+
+		if (!publisher) {
+			await publisherCreateSemaphore.wait();
+			try {
+				publisher = publishers.get(config);
+				if (!publisher) {
+					publisher = new Publisher(config);
+					await publisher.init();
+					publishers.set(config, publisher);
+				}
+			} finally {
+				publisherCreateSemaphore.release();
+			}
+		}
+
+		await publisher.publish(eventName, buffer);
+
+	} catch (err) {
+		emitter.emit(ERROR_EVENT, err.message);
+		throw err;
+	}
+
+}
+
+async function close() {
+	for (const entry of publishers) {
+		await entry[1].close();
+	}
+}
 
 emitter.ERROR = ERROR_EVENT;
 
 module.exports = {
 	send,
+	close,
 	emitter
 };

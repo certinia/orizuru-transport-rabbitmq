@@ -28,20 +28,19 @@
 
 const
 	root = require('app-root-path'),
+	proxyquire = require('proxyquire'),
 	chai = require('chai'),
 	sinonChai = require('sinon-chai'),
 	sinon = require('sinon'),
 	chaiAsPromised = require('chai-as-promised'),
 
-	Amqp = require(root + '/src/lib/index/shared/amqp'),
-
-	Publisher = require(root + '/src/lib/index/publish'),
-
 	mocks = {},
-	anyFunction = sinon.match.func,
 
 	sandbox = sinon.sandbox.create(),
 	expect = chai.expect;
+
+let
+	publish;
 
 chai.use(chaiAsPromised);
 chai.use(sinonChai);
@@ -49,12 +48,27 @@ chai.use(sinonChai);
 describe('index/publish.js', () => {
 
 	beforeEach(() => {
-		mocks.Amqp = {
-			apply: sandbox.stub(Amqp, 'apply')
+		mocks.amqp = {
+			connect: sandbox.stub()
 		};
+
+		mocks.connection = {
+			createChannel: sandbox.stub(),
+			close: sandbox.stub()
+		};
+
 		mocks.channel = {
 			sendToQueue: sandbox.stub()
 		};
+
+		mocks.amqp.connect.resolves(mocks.connection);
+		mocks.connection.createChannel.resolves(mocks.channel);
+
+		mocks.channel.sendToQueue.resolves(true);
+
+		publish = proxyquire(root + '/src/lib/index/publish', {
+			amqplib: mocks.amqp
+		});
 	});
 
 	afterEach(() => {
@@ -63,27 +77,76 @@ describe('index/publish.js', () => {
 
 	describe('send', () => {
 
-		it('should call sendToQueue', () => {
+		it('should send to the queue', async () => {
 
 			// given
 			const
 				eventName = 'TestTopic',
 				buffer = 'TestBuffer',
-				config = 'test';
-
-			mocks.Amqp.apply.callsFake(action => {
-				return Promise.resolve(action(mocks.channel));
-			});
+				config = {
+					cloudamqpUrl: 'amqp://localhost'
+				};
 
 			// when
-			return Publisher.send({ eventName, buffer, config })
-				// then
-				.then(() => {
-					expect(mocks.Amqp.apply).to.have.been.calledOnce;
-					expect(mocks.Amqp.apply).to.have.been.calledWith(anyFunction, config);
-					expect(mocks.channel.sendToQueue).to.be.calledOnce;
-					expect(mocks.channel.sendToQueue).to.be.calledWith(eventName, buffer);
-				});
+			await publish.send({ eventName, buffer, config });
+
+			expect(mocks.amqp.connect).to.have.been.calledOnce;
+			expect(mocks.amqp.connect).to.have.been.calledWith(config.cloudamqpUrl);
+			expect(mocks.connection.createChannel).to.have.been.calledOnce;
+			expect(mocks.channel.sendToQueue).to.be.calledOnce;
+			expect(mocks.channel.sendToQueue).to.be.calledWith(eventName, buffer);
+		});
+
+		it('should reuse channels', async () => {
+
+			// given
+			const
+				eventName = 'TestTopic',
+				buffer = 'TestBuffer',
+				config = {
+					cloudamqpUrl: 'amqp://localhost'
+				};
+
+			// when
+			publish.send({ eventName, buffer, config });
+			publish.send({ eventName, buffer, config });
+			await publish.send({ eventName, buffer, config });
+			await publish.send({ eventName, buffer, config });
+
+			expect(mocks.amqp.connect).to.have.been.calledOnce;
+			expect(mocks.amqp.connect).to.have.been.calledWith(config.cloudamqpUrl);
+			expect(mocks.connection.createChannel).to.have.been.calledOnce;
+			expect(mocks.channel.sendToQueue).to.have.callCount(4);
+		});
+
+	});
+
+	describe('close', () => {
+
+		it('should call close', async () => {
+
+			// given
+			const
+				eventName = 'TestTopic',
+				buffer = 'TestBuffer',
+				config = {
+					cloudamqpUrl: 'amqp://localhost'
+				};
+
+			// when
+			await publish.send({ eventName, buffer, config });
+			await publish.close();
+
+			expect(mocks.connection.close).to.have.been.calledOnce;
+		});
+
+		it('should tolerate no connection', async () => {
+
+			// Given - When
+			await publish.close();
+
+			// Then
+			expect(mocks.connection.close).to.have.not.been.called;
 		});
 
 	});
@@ -97,11 +160,11 @@ describe('index/publish.js', () => {
 		};
 
 		beforeEach(() => {
-			Publisher.emitter.addListener(Publisher.emitter.ERROR, listener);
+			publish.emitter.addListener(publish.emitter.ERROR, listener);
 		});
 
 		afterEach(() => {
-			Publisher.emitter.removeListener(Publisher.emitter.ERROR, listener);
+			publish.emitter.removeListener(publish.emitter.ERROR, listener);
 			errorEvents = [];
 		});
 
@@ -110,12 +173,17 @@ describe('index/publish.js', () => {
 			it('if publish throws an error', () => {
 
 				// given
-				mocks.Amqp.apply.callsFake(action => {
-					return Promise.reject(new Error('test error'));
-				});
+				const
+					eventName = 'TestTopic',
+					buffer = 'TestBuffer',
+					config = {
+						cloudamqpUrl: 'amqp://localhost'
+					};
+
+				mocks.channel.sendToQueue.rejects(new Error('test error'));
 
 				// when - then
-				return expect(Publisher.send({})).to.be.rejected.then(() => {
+				return expect(publish.send({ eventName, buffer, config })).to.be.rejected.then(() => {
 					expect(errorEvents).to.include('test error');
 				});
 

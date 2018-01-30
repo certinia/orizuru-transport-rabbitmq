@@ -28,7 +28,9 @@
 
 const
 	_ = require('lodash'),
-	Amqp = require('./shared/amqp'),
+	amqp = require('amqplib'),
+	{ Semaphore } = require('prex'),
+	{ validate } = require('./shared/configValidator'),
 
 	EventEmitter = require('events'),
 
@@ -36,34 +38,87 @@ const
 
 	emitter = new EventEmitter(),
 
-	subscribeAction = ({ topic, handler, channel, config }) => {
+	subscribers = new Map(),
+
+	subscriberCreateSemaphore = new Semaphore(1);
+
+class Subscriber {
+
+	constructor(config) {
+		validate(config);
+		this.config = config;
+	}
+
+	async init() {
+		this.connection = await amqp.connect(this.config.cloudamqpUrl);
+	}
+
+	async subscribe({ eventName, handler }) {
+		const channel = await this.connection.createChannel();
+
 		// Ensure the topic exists
-		channel.assertQueue(topic);
+		channel.assertQueue(eventName);
+
 		// Set prefetch
-		if (config.prefetch && _.isInteger(config.prefetch)) {
-			channel.prefetch(config.prefetch);
+		if (this.config.prefetch && _.isInteger(this.config.prefetch)) {
+			channel.prefetch(this.config.prefetch);
 		}
+
 		// Subscribe to the topic
-		return channel.consume(topic, message => {
+		return channel.consume(eventName, message => {
 			return Promise.resolve(message.content)
 				.then(handler)
 				.catch(err => emitter.emit(ERROR_EVENT, err.message))
 				.then(result => channel.ack(message)); // finally
 		});
-	},
 
-	handle = ({ eventName, handler, config }) => {
-		// Opens a connection to the RabbitMQ server, and subscribes to the topic
-		return Amqp.apply(channel => subscribeAction({ topic: eventName, handler, channel, config }), config)
-			.catch(err => {
-				emitter.emit(ERROR_EVENT, err.message);
-				throw err;
-			});
-	};
+	}
+
+	close() {
+		this.connection.close();
+	}
+
+}
+
+async function handle({ eventName, handler, config }) {
+
+	try {
+
+		let subscriber = subscribers.get(config);
+
+		if (!subscriber) {
+			await subscriberCreateSemaphore.wait();
+			try {
+				subscriber = subscribers.get(config);
+				if (!subscriber) {
+					subscriber = new Subscriber(config);
+					await subscriber.init();
+					subscribers.set(config, subscriber);
+				}
+			} finally {
+				subscriberCreateSemaphore.release();
+			}
+		}
+
+		return await subscriber.subscribe({ eventName, handler });
+
+	} catch (err) {
+		emitter.emit(ERROR_EVENT, err.message);
+		throw err;
+	}
+
+}
+
+async function close() {
+	for (const entry of subscribers) {
+		await entry[1].close();
+	}
+}
 
 emitter.ERROR = ERROR_EVENT;
 
 module.exports = {
 	handle,
+	close,
 	emitter
 };
