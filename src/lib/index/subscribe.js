@@ -78,7 +78,7 @@ class Subscriber {
 	}
 
 	async close() {
-		await this.connection.close();
+		return this.connection.close();
 	}
 
 	static async newSubscriber(config) {
@@ -89,18 +89,21 @@ class Subscriber {
 
 }
 
+function getOrCreateSubscriber(config) {
+	let subscriberPromise = subscribers.get(config);
+
+	if (!subscriberPromise) {
+		subscriberPromise = Subscriber.newSubscriber(config);
+		subscribers.set(config, subscriberPromise);
+	}
+
+	return subscriberPromise;
+}
+
 async function handle({ eventName: queue, handler, config }) {
 
 	try {
-		let subscriberPromise = subscribers.get(config),
-			subscriber = null;
-
-		if (!subscriberPromise) {
-			subscriberPromise = Subscriber.newSubscriber(config);
-			subscribers.set(config, subscriberPromise);
-		}
-
-		subscriber = await subscriberPromise;
+		const subscriber = await getOrCreateSubscriber(config);
 		return await subscriber.subscribe(queue, handler);
 	} catch (err) {
 		emitter.emit(ERROR_EVENT, err.message);

@@ -52,11 +52,11 @@ class Publisher {
 	}
 
 	async publish(queue, buffer) {
-		return await this.channel.sendToQueue(queue, buffer);
+		return this.channel.sendToQueue(queue, buffer);
 	}
 
 	async close() {
-		await this.connection.close();
+		return this.connection.close();
 	}
 
 	static async newPublisher(config) {
@@ -67,18 +67,22 @@ class Publisher {
 
 }
 
+function getOrCreatePublisher(config) {
+
+	let publisherPromise = publishers.get(config);
+
+	if (!publisherPromise) {
+		publisherPromise = Publisher.newPublisher(config);
+		publishers.set(config, publisherPromise);
+	}
+
+	return publisherPromise;
+}
+
 async function send({ eventName, buffer, config }) {
 
 	try {
-		let publisherPromise = publishers.get(config),
-			publisher = null;
-
-		if (!publisherPromise) {
-			publisherPromise = Publisher.newPublisher(config);
-			publishers.set(config, publisherPromise);
-		}
-
-		publisher = await publisherPromise;
+		const publisher = await getOrCreatePublisher(config);
 		return await publisher.publish(eventName, buffer);
 	} catch (err) {
 		emitter.emit(ERROR_EVENT, err.message);
