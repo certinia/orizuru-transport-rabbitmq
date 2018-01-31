@@ -108,7 +108,7 @@ describe('index/publish.js', () => {
 				};
 
 			// when
-			await publish.send({ eventName, buffer, config });
+			publish.send({ eventName, buffer, config });
 			await publish.send({ eventName, buffer, config });
 
 			expect(mocks.amqp.connect).to.have.been.calledOnce;

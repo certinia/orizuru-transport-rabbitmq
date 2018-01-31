@@ -233,7 +233,7 @@ describe('index/subscribe.js', () => {
 			});
 
 			// when
-			await expect(subscribe.handle({ eventName: topic, handler: mocks.handler, config })).to.be.fulfilled;
+			expect(subscribe.handle({ eventName: topic, handler: mocks.handler, config })).to.be.fulfilled;
 			await expect(subscribe.handle({ eventName: otherTopic, handler: mocks.handler, config })).to.be.fulfilled;
 
 			expect(mocks.amqp.connect).to.have.been.calledOnce;
