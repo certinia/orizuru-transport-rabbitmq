@@ -36,12 +36,15 @@
  */
 
 const
-	Amqp = require('./index/shared/amqp'),
 	publish = require('./index/publish'),
 	subscribe = require('./index/subscribe'),
 
 	publishFunc = config => publish.send(config),
-	subscribeFunc = config => subscribe.handle(config);
+	subscribeFunc = config => subscribe.handle(config),
+	closeFunc = () => {
+		publish.close();
+		subscribe.close();
+	};
 
 publishFunc.emitter = publish.emitter;
 subscribeFunc.emitter = subscribe.emitter;
@@ -101,6 +104,6 @@ module.exports = {
 	 * @func
 	 * close
 	 */
-	close: Amqp.close
+	close: closeFunc
 
 };

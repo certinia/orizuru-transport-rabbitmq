@@ -27,7 +27,9 @@
 'use strict';
 
 const
-	Amqp = require('./shared/amqp'),
+	_ = require('lodash'),
+	amqp = require('amqplib'),
+	{ validate } = require('./shared/configValidator'),
 
 	EventEmitter = require('events'),
 
@@ -35,17 +37,71 @@ const
 
 	emitter = new EventEmitter(),
 
-	send = ({ eventName, buffer, config }) => {
-		return Amqp.apply(channel => channel.sendToQueue(eventName, buffer), config)
-			.catch(err => {
-				emitter.emit(ERROR_EVENT, err.message);
-				throw err;
-			});
-	};
+	publishers = new Map();
+
+class Publisher {
+
+	constructor(config) {
+		validate(config);
+		this.config = _.cloneDeep(config);
+	}
+
+	async init() {
+		this.connection = await amqp.connect(this.config.cloudamqpUrl);
+		this.channel = await this.connection.createChannel();
+	}
+
+	async publish(queue, buffer) {
+		return this.channel.sendToQueue(queue, buffer);
+	}
+
+	async close() {
+		return this.connection.close();
+	}
+
+	static async newPublisher(config) {
+		const publisher = new Publisher(config);
+		await publisher.init();
+		return publisher;
+	}
+
+}
+
+function getOrCreatePublisher(config) {
+
+	let publisherPromise = publishers.get(config);
+
+	if (!publisherPromise) {
+		publisherPromise = Publisher.newPublisher(config);
+		publishers.set(config, publisherPromise);
+	}
+
+	return publisherPromise;
+}
+
+async function send({ eventName, buffer, config }) {
+
+	try {
+		const publisher = await getOrCreatePublisher(config);
+		return await publisher.publish(eventName, buffer);
+	} catch (err) {
+		emitter.emit(ERROR_EVENT, err.message);
+		throw err;
+	}
+}
+
+async function close() {
+	for (const entry of publishers) {
+		// Entry 1 is the Map's value.
+		const publisher = await entry[1];
+		await publisher.close();
+	}
+}
 
 emitter.ERROR = ERROR_EVENT;
 
 module.exports = {
 	send,
+	close,
 	emitter
 };

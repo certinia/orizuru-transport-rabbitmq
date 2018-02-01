@@ -28,7 +28,8 @@
 
 const
 	_ = require('lodash'),
-	Amqp = require('./shared/amqp'),
+	amqp = require('amqplib'),
+	{ validate } = require('./shared/configValidator'),
 
 	EventEmitter = require('events'),
 
@@ -36,34 +37,93 @@ const
 
 	emitter = new EventEmitter(),
 
-	subscribeAction = ({ topic, handler, channel, config }) => {
-		// Ensure the topic exists
-		channel.assertQueue(topic);
-		// Set prefetch
-		if (config.prefetch && _.isInteger(config.prefetch)) {
-			channel.prefetch(config.prefetch);
-		}
-		// Subscribe to the topic
-		return channel.consume(topic, message => {
-			return Promise.resolve(message.content)
-				.then(handler)
-				.catch(err => emitter.emit(ERROR_EVENT, err.message))
-				.then(result => channel.ack(message)); // finally
-		});
-	},
+	subscribers = new Map();
 
-	handle = ({ eventName, handler, config }) => {
-		// Opens a connection to the RabbitMQ server, and subscribes to the topic
-		return Amqp.apply(channel => subscribeAction({ topic: eventName, handler, channel, config }), config)
-			.catch(err => {
+class Subscriber {
+
+	constructor(config) {
+		validate(config);
+		this.config = _.cloneDeep(config);
+	}
+
+	async init() {
+		this.connection = await amqp.connect(this.config.cloudamqpUrl);
+	}
+
+	async subscribe(queue, handler) {
+		const channel = await this.connection.createChannel();
+
+		// Ensure the topic exists
+		channel.assertQueue(queue);
+
+		// Set prefetch
+		if (this.config.prefetch && _.isInteger(this.config.prefetch)) {
+			channel.prefetch(this.config.prefetch);
+		}
+
+		// Subscribe to the topic
+		return channel.consume(queue, async (message) => {
+
+			try {
+				return await handler(message.content);
+			} catch (err) {
 				emitter.emit(ERROR_EVENT, err.message);
-				throw err;
-			});
-	};
+				return err;
+			} finally {
+				await channel.ack(message);
+			}
+
+		});
+
+	}
+
+	async close() {
+		return this.connection.close();
+	}
+
+	static async newSubscriber(config) {
+		const subscriber = new Subscriber(config);
+		await subscriber.init();
+		return subscriber;
+	}
+
+}
+
+function getOrCreateSubscriber(config) {
+	let subscriberPromise = subscribers.get(config);
+
+	if (!subscriberPromise) {
+		subscriberPromise = Subscriber.newSubscriber(config);
+		subscribers.set(config, subscriberPromise);
+	}
+
+	return subscriberPromise;
+}
+
+async function handle({ eventName: queue, handler, config }) {
+
+	try {
+		const subscriber = await getOrCreateSubscriber(config);
+		return await subscriber.subscribe(queue, handler);
+	} catch (err) {
+		emitter.emit(ERROR_EVENT, err.message);
+		throw err;
+	}
+
+}
+
+async function close() {
+	for (const entry of subscribers) {
+		// Entry 1 is the Map's value.
+		const subscriber = await entry[1];
+		await subscriber.close();
+	}
+}
 
 emitter.ERROR = ERROR_EVENT;
 
 module.exports = {
 	handle,
+	close,
 	emitter
 };

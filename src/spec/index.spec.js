@@ -48,8 +48,14 @@ describe('index.js', () => {
 
 		// given
 		const
-			mockPublish = { send: sandbox.spy() },
-			mockSubscribe = { handle: sandbox.spy() },
+			mockPublish = {
+				send: sandbox.stub(),
+				close: sandbox.spy()
+			},
+			mockSubscribe = {
+				handle: sandbox.spy(),
+				close: sandbox.spy()
+			},
 			index = proxyquire(root + '/src/lib/index', {
 				['./index/publish']: mockPublish,
 				['./index/subscribe']: mockSubscribe
@@ -58,12 +64,15 @@ describe('index.js', () => {
 		// when
 		index.publish('test1');
 		index.subscribe('test2');
+		index.close();
 
 		// then
 		expect(mockPublish.send).to.have.been.calledOnce;
 		expect(mockPublish.send).to.have.been.calledWith('test1');
+		expect(mockPublish.close).to.have.been.calledOnce;
 		expect(mockSubscribe.handle).to.have.been.calledOnce;
 		expect(mockSubscribe.handle).to.have.been.calledWith('test2');
+		expect(mockSubscribe.close).to.have.been.calledOnce;
 
 		expect(index.close).to.be.a('function');
 
