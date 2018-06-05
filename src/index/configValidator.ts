@@ -24,71 +24,18 @@
  *  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import { Channel, Message } from 'amqplib';
+import _ from 'lodash';
 
-import { Options as OrizuruOptions } from '@financialforcedev/orizuru';
-import { Options } from '..';
+import { Options } from '@financialforcedev/orizuru';
 
-/**
- * @private
- */
-export default class Subscriber {
+export default function validate(config: Options.Transport.IConnect) {
 
-	private readonly channel: Channel;
-	private eventName?: string;
-
-	constructor(channel: Channel) {
-		this.channel = channel;
+	if (config == null) {
+		throw new Error('Invalid parameter: null config.');
 	}
 
-	public async init(options: OrizuruOptions.Transport.ISubscribe & Options.ISubscribe) {
-
-		this.eventName = options.eventName;
-
-		if (options.exchange) {
-
-			const exchange = options.exchange;
-			const name = exchange.name;
-			const type = exchange.type || 'fanout';
-			const key = exchange.key || '';
-
-			await this.channel.assertExchange(name, type, { durable: false });
-
-			// Ensure the queue exists
-			await this.channel.assertQueue(this.eventName);
-
-			// Bind to the queue
-			await this.channel.bindQueue(this.eventName, name, key);
-
-		} else {
-			// Ensure the queue exists
-			this.channel.assertQueue(this.eventName);
-		}
-
-	}
-
-	public async subscribe(handler: (content: Buffer) => Promise<void>, options: OrizuruOptions.Transport.ISubscribe) {
-
-		if (!this.eventName) {
-			throw new Error('Subscriber has not been initialised');
-		}
-
-		this.channel.consume(this.eventName, async (message: Message | null) => {
-
-			if (!message) {
-				throw new Error('Null message');
-			}
-
-			try {
-				await handler(message.content);
-			} catch (err) {
-				throw err;
-			} finally {
-				await this.channel.ack(message);
-			}
-
-		});
-
+	if (config.url == null || !_.isString(config.url)) {
+		throw new Error('Invalid parameter: url not a string.');
 	}
 
 }
