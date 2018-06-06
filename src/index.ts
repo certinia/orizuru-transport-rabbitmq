@@ -109,7 +109,7 @@ export declare namespace Options {
 	export interface IPublish {
 		exchange?: {
 			key?: string;
-			keyFunction?: ((options: IPublish) => string);
+			keyFunction?: ((options: OrizuruOptions.Transport.IPublish) => string);
 			name?: string;
 			type?: string;
 		};
@@ -118,7 +118,7 @@ export declare namespace Options {
 	export interface ISubscribe {
 		exchange?: {
 			key?: string;
-			keyFunction?: ((options: ISubscribe) => string);
+			keyFunction?: ((options: OrizuruOptions.Transport.ISubscribe) => string);
 			name: string;
 			type?: string;
 		};
