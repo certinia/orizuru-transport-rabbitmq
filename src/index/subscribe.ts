@@ -26,8 +26,7 @@
 
 import { Channel, Message } from 'amqplib';
 
-import { Options as OrizuruOptions } from '@financialforcedev/orizuru';
-import { Options } from '..';
+import { Options } from '@financialforcedev/orizuru';
 
 /**
  * @private
@@ -41,7 +40,7 @@ export default class Subscriber {
 		this.channel = channel;
 	}
 
-	public async init(options: OrizuruOptions.Transport.ISubscribe & Options.ISubscribe) {
+	public async init(options: Options.Transport.ISubscribe) {
 
 		this.eventName = options.eventName;
 
@@ -67,7 +66,7 @@ export default class Subscriber {
 
 	}
 
-	public async subscribe(handler: (content: Buffer) => Promise<void>, options: OrizuruOptions.Transport.ISubscribe) {
+	public async subscribe(handler: (content: Buffer) => Promise<void>, options: Options.Transport.ISubscribe) {
 
 		if (!this.eventName) {
 			throw new Error('Subscriber has not been initialised');

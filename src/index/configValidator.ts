@@ -28,13 +28,13 @@ import _ from 'lodash';
 
 import { Options } from '@financialforcedev/orizuru';
 
-export default function validate(config: Options.Transport.IConnect) {
+export default function validate(options: Options.Transport.IConnect) {
 
-	if (config == null) {
-		throw new Error('Invalid parameter: null config.');
+	if (options == null) {
+		throw new Error('Invalid parameter: null options.');
 	}
 
-	if (config.url == null || !_.isString(config.url)) {
+	if (options.url == null || !_.isString(options.url)) {
 		throw new Error('Invalid parameter: url not a string.');
 	}
 

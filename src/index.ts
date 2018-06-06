@@ -52,7 +52,7 @@ export function createTransport(): ITransport {
 		connection.close();
 	}
 
-	async function connect(options: OrizuruOptions.Transport.IConnect & Options.IConnect) {
+	async function connect(options: OrizuruOptions.Transport.IConnect) {
 
 		// Create a single connection
 		if (!connection) {
@@ -79,13 +79,13 @@ export function createTransport(): ITransport {
 
 	}
 
-	async function publish(buffer: Buffer, options: OrizuruOptions.Transport.IPublish & Options.IPublish) {
+	async function publish(buffer: Buffer, options: OrizuruOptions.Transport.IPublish) {
 		const publisher = new Publisher(publishChannel);
 		await publisher.init(options);
 		return publisher.publish(buffer);
 	}
 
-	async function subscribe(handler: (content: Buffer) => Promise<void>, options: OrizuruOptions.Transport.ISubscribe & Options.ISubscribe) {
+	async function subscribe(handler: (content: Buffer) => Promise<void>, options: OrizuruOptions.Transport.ISubscribe) {
 		const subscriber = new Subscriber(subscribeChannel);
 		await subscriber.init(options);
 		return subscriber.subscribe(handler, options);
@@ -100,28 +100,35 @@ export function createTransport(): ITransport {
 
 }
 
-export declare namespace Options {
+declare global {
 
-	export interface IConnect {
-		prefetch?: number;
-	}
+	namespace Orizuru {
 
-	export interface IPublish {
-		exchange?: {
-			key?: string;
-			keyFunction?: ((options: OrizuruOptions.Transport.IPublish) => string);
-			name?: string;
-			type?: string;
-		};
-	}
+		namespace Transport {
 
-	export interface ISubscribe {
-		exchange?: {
-			key?: string;
-			keyFunction?: ((options: OrizuruOptions.Transport.ISubscribe) => string);
-			name: string;
-			type?: string;
-		};
+			interface IConnect {
+				prefetch?: number;
+			}
+
+			interface IPublish {
+				exchange?: {
+					key?: string;
+					keyFunction?: ((options: OrizuruOptions.Transport.IPublish) => string);
+					name?: string;
+					type?: string;
+				};
+			}
+
+			interface ISubscribe {
+				exchange?: {
+					key?: string;
+					keyFunction?: ((options: OrizuruOptions.Transport.ISubscribe) => string);
+					name: string;
+					type?: string;
+				};
+			}
+		}
+
 	}
 
 }

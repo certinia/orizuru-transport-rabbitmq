@@ -26,8 +26,7 @@
 
 import { Channel } from 'amqplib';
 
-import { Options as OrizuruOptions } from '@financialforcedev/orizuru';
-import { Options } from '..';
+import { Options } from '@financialforcedev/orizuru';
 
 /**
  * @private
@@ -41,7 +40,7 @@ export default class Publisher {
 		this.channel = channel;
 	}
 
-	public async init(options: OrizuruOptions.Transport.IPublish & Options.IPublish) {
+	public async init(options: Options.Transport.IPublish) {
 
 		if (options.exchange) {
 
