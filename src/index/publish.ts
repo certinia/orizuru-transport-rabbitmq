@@ -50,6 +50,7 @@ export default class Publisher {
 			const type = exchange.type || 'fanout';
 			const key = exchange.key || exchange.keyFunction && exchange.keyFunction(options) || '';
 
+			// Ensure the exchange exists
 			await this.channel.assertExchange(name, type, { durable: false });
 
 			this.publishFunction = (buffer: Buffer) => {
@@ -58,8 +59,12 @@ export default class Publisher {
 
 		} else {
 
+			const eventName = options.eventName as string;
+
+			// Ensure the queue exists
+			await this.channel.assertQueue(eventName);
+
 			this.publishFunction = (buffer: Buffer) => {
-				const eventName = options.eventName as string;
 				return this.channel.sendToQueue(eventName, buffer);
 			};
 
@@ -69,7 +74,7 @@ export default class Publisher {
 
 	public async publish(buffer: Buffer) {
 		if (!this.publishFunction) {
-			throw new Error('Publisher has not been initialised');
+			throw new Error('Publisher has not been initialised.');
 		}
 		return this.publishFunction(buffer);
 	}
