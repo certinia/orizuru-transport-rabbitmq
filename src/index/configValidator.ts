@@ -28,6 +28,9 @@ import _ from 'lodash';
 
 import { Options } from '@financialforcedev/orizuru';
 
+/**
+ * @private
+ */
 export default function validate(options: Options.Transport.IConnect) {
 
 	if (options == null) {

@@ -28,13 +28,15 @@ import { Channel, Message } from 'amqplib';
 
 import { Options } from '@financialforcedev/orizuru';
 
+import { IHandlerResponse } from '..';
+
 /**
  * @private
  */
 export default class Subscriber {
 
 	private readonly channel: Channel;
-	private eventName?: string;
+	private eventName: string | undefined;
 
 	constructor(channel: Channel) {
 		this.channel = channel;
@@ -66,24 +68,29 @@ export default class Subscriber {
 
 	}
 
-	public async subscribe(handler: (content: Buffer) => Promise<void>, options: Options.Transport.ISubscribe) {
+	public async subscribe(handler: (content: Buffer) => Promise<void | IHandlerResponse>) {
 
 		if (!this.eventName) {
-			throw new Error('Subscriber has not been initialised');
+			throw new Error('Subscriber has not been initialised.');
 		}
 
 		this.channel.consume(this.eventName, async (message: Message | null) => {
 
-			if (!message) {
-				throw new Error('Null message');
-			}
+			if (message) {
 
-			try {
-				await handler(message.content);
-			} catch (err) {
-				throw err;
-			} finally {
-				await this.channel.ack(message);
+				try {
+
+					const handlerResponse = await handler(message.content);
+					if (handlerResponse && handlerResponse.retry) {
+						await this.channel.nack(message, false, true);
+					} else {
+						await this.channel.ack(message);
+					}
+
+				} catch (err) {
+					await this.channel.ack(message);
+				}
+
 			}
 
 		});

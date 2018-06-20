@@ -36,11 +36,15 @@
 
 import * as amqp from 'amqplib';
 
-import { ITransport, Options as OrizuruOptions } from '@financialforcedev/orizuru';
+import { ITransport, Options } from '@financialforcedev/orizuru';
 
 import { default as validate } from './index/configValidator';
 import Publisher from './index/publish';
 import Subscriber from './index/subscribe';
+
+export interface IHandlerResponse {
+	retry: boolean;
+}
 
 export function createTransport(): ITransport {
 
@@ -52,7 +56,7 @@ export function createTransport(): ITransport {
 		connection.close();
 	}
 
-	async function connect(options: OrizuruOptions.Transport.IConnect) {
+	async function connect(options: Options.Transport.IConnect) {
 
 		// Create a single connection
 		if (!connection) {
@@ -79,16 +83,16 @@ export function createTransport(): ITransport {
 
 	}
 
-	async function publish(buffer: Buffer, options: OrizuruOptions.Transport.IPublish) {
+	async function publish(buffer: Buffer, options: Options.Transport.IPublish) {
 		const publisher = new Publisher(publishChannel);
 		await publisher.init(options);
 		return publisher.publish(buffer);
 	}
 
-	async function subscribe(handler: (content: Buffer) => Promise<void>, options: OrizuruOptions.Transport.ISubscribe) {
+	async function subscribe(handler: (content: Buffer) => Promise<void>, options: Options.Transport.ISubscribe) {
 		const subscriber = new Subscriber(subscribeChannel);
 		await subscriber.init(options);
-		return subscriber.subscribe(handler, options);
+		return subscriber.subscribe(handler);
 	}
 
 	return {
@@ -113,7 +117,7 @@ declare global {
 			interface IPublish {
 				exchange?: {
 					key?: string;
-					keyFunction?: ((options: OrizuruOptions.Transport.IPublish) => string);
+					keyFunction?: ((options: Options.Transport.IPublish) => string);
 					name?: string;
 					type?: string;
 				};
@@ -122,7 +126,7 @@ declare global {
 			interface ISubscribe {
 				exchange?: {
 					key?: string;
-					keyFunction?: ((options: OrizuruOptions.Transport.ISubscribe) => string);
+					keyFunction?: ((options: Options.Transport.ISubscribe) => string);
 					name: string;
 					type?: string;
 				};
