@@ -28,8 +28,6 @@ import { Channel, Message } from 'amqplib';
 
 import { Options } from '@financialforcedev/orizuru';
 
-import { IHandlerResponse } from '..';
-
 /**
  * @private
  */
@@ -68,7 +66,7 @@ export default class Subscriber {
 
 	}
 
-	public async subscribe(handler: (content: Buffer) => Promise<void | IHandlerResponse>) {
+	public async subscribe(handler: (content: Buffer) => Promise<void | Orizuru.IHandlerResponse>) {
 
 		if (!this.eventName) {
 			throw new Error('Subscriber has not been initialised.');

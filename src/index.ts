@@ -42,10 +42,6 @@ import { default as validate } from './index/configValidator';
 import Publisher from './index/publish';
 import Subscriber from './index/subscribe';
 
-export interface IHandlerResponse {
-	retry: boolean;
-}
-
 export function createTransport(): ITransport {
 
 	let connection: amqp.Connection;
@@ -89,7 +85,7 @@ export function createTransport(): ITransport {
 		return publisher.publish(buffer);
 	}
 
-	async function subscribe(handler: (content: Buffer) => Promise<void>, options: Options.Transport.ISubscribe) {
+	async function subscribe(handler: (content: Buffer) => Promise<void | Orizuru.IHandlerResponse>, options: Options.Transport.ISubscribe) {
 		const subscriber = new Subscriber(subscribeChannel);
 		await subscriber.init(options);
 		return subscriber.subscribe(handler);
@@ -107,6 +103,10 @@ export function createTransport(): ITransport {
 declare global {
 
 	namespace Orizuru {
+
+		interface IHandlerResponse {
+			retry: boolean;
+		}
 
 		namespace Transport {
 
