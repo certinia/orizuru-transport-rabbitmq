@@ -24,17 +24,7 @@
  *  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-/**
- * The Index file for project.
- * Returns the publish and subscribe methods.
- *
- * These define the API for a transport layer.
- * In this case, the transport uses rabbitmq.
- *
- * @module index
- */
-
-import * as amqp from 'amqplib';
+import { Channel, connect as amqpConnect, Connection } from 'amqplib';
 
 import { ITransport, Options } from '@financialforcedev/orizuru';
 
@@ -44,12 +34,14 @@ import Subscriber from './index/subscribe';
 
 export function createTransport(): ITransport {
 
-	let connection: amqp.Connection;
-	let publishChannel: amqp.Channel;
-	let subscribeChannel: amqp.Channel;
+	let connection: Connection;
+	let publishChannel: Channel;
+	let subscribeChannel: Channel;
 
 	async function close() {
-		connection.close();
+		if (connection) {
+			connection.close();
+		}
 	}
 
 	async function connect(options: Options.Transport.IConnect) {
@@ -57,7 +49,7 @@ export function createTransport(): ITransport {
 		// Create a single connection
 		if (!connection) {
 			validate(options);
-			connection = await amqp.connect(options.url);
+			connection = await amqpConnect(options.url);
 		}
 
 		// Create a single publish channel

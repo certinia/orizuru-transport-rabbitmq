@@ -67,10 +67,10 @@
 				<h2>Index</h2>
 				<section class="tsd-panel tsd-index-panel">
 					<div class="tsd-index-content">
-						<section class="tsd-index-section tsd-is-external">
+						<section class="tsd-index-section tsd-is-not-exported">
 							<h3>Modules</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-module tsd-is-external"><a href="modules/options.html" class="tsd-kind-icon">Options</a></li>
+								<li class="tsd-kind-module tsd-is-not-exported"><a href="modules/__global.html" class="tsd-kind-icon">__global</a></li>
 							</ul>
 						</section>
 						<section class="tsd-index-section tsd-is-private tsd-is-private-protected">
@@ -83,8 +83,8 @@
 						<section class="tsd-index-section ">
 							<h3>Functions</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-function tsd-is-external"><a href="globals.html#createtransport" class="tsd-kind-icon">create<wbr>Transport</a></li>
-								<li class="tsd-kind-function"><a href="globals.html#validate" class="tsd-kind-icon">validate</a></li>
+								<li class="tsd-kind-function"><a href="globals.html#createtransport" class="tsd-kind-icon">create<wbr>Transport</a></li>
+								<li class="tsd-kind-function tsd-is-private"><a href="globals.html#validate" class="tsd-kind-icon">validate</a></li>
 							</ul>
 						</section>
 					</div>
@@ -92,40 +92,42 @@
 			</section>
 			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Functions</h2>
-				<section class="tsd-panel tsd-member tsd-kind-function tsd-is-external">
+				<section class="tsd-panel tsd-member tsd-kind-function">
 					<a name="createtransport" class="tsd-anchor"></a>
 					<h3>create<wbr>Transport</h3>
-					<ul class="tsd-signatures tsd-kind-function tsd-is-external">
+					<ul class="tsd-signatures tsd-kind-function">
 						<li class="tsd-signature tsd-kind-icon">create<wbr>Transport<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">ITransport</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/financialforcedev/orizuru-transport-rabbitmq/blob/e822719/src/index.ts#L45">index.ts:45</a></li>
+									<li>Defined in <a href="https://github.com/financialforcedev/orizuru-transport-rabbitmq/blob/c02fe79/src/index.ts#L35">index.ts:35</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">ITransport</span></h4>
 						</li>
 					</ul>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-function">
+				<section class="tsd-panel tsd-member tsd-kind-function tsd-is-private">
 					<a name="validate" class="tsd-anchor"></a>
-					<h3>validate</h3>
-					<ul class="tsd-signatures tsd-kind-function">
-						<li class="tsd-signature tsd-kind-icon">validate<span class="tsd-signature-symbol">(</span>config<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">IConnect</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					<h3><span class="tsd-flag ts-flagPrivate">Private</span> validate</h3>
+					<ul class="tsd-signatures tsd-kind-function tsd-is-private">
+						<li class="tsd-signature tsd-kind-icon">validate<span class="tsd-signature-symbol">(</span>options<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">IConnect</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in index/configValidator.ts:31</li>
+									<li>Defined in <a href="https://github.com/financialforcedev/orizuru-transport-rabbitmq/blob/c02fe79/src/index/configValidator.ts#L34">index/configValidator.ts:34</a></li>
 								</ul>
 							</aside>
+							<div class="tsd-comment tsd-typography">
+							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
-									<h5>config: <span class="tsd-signature-type">IConnect</span></h5>
+									<h5>options: <span class="tsd-signature-type">IConnect</span></h5>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
@@ -140,11 +142,14 @@
 					<li class="globals current ">
 						<a href="globals.html"><em>Globals</em></a>
 					</li>
-					<li class="label tsd-is-external">
-						<span>Externals</span>
+					<li class=" tsd-kind-module tsd-is-not-exported">
+						<a href="modules/__global.html">__global</a>
 					</li>
-					<li class=" tsd-kind-module tsd-is-external">
-						<a href="modules/options.html">Options</a>
+					<li class=" tsd-kind-module tsd-parent-kind-module tsd-is-not-exported">
+						<a href="modules/__global.orizuru.html">__global.<wbr>Orizuru</a>
+					</li>
+					<li class=" tsd-kind-module tsd-parent-kind-module tsd-is-not-exported">
+						<a href="modules/__global.orizuru.transport.html">__global.<wbr>Orizuru.<wbr>Transport</a>
 					</li>
 				</ul>
 			</nav>
@@ -156,10 +161,10 @@
 					<li class=" tsd-kind-class tsd-is-private">
 						<a href="classes/subscriber.html" class="tsd-kind-icon">Subscriber</a>
 					</li>
-					<li class=" tsd-kind-function tsd-is-external">
+					<li class=" tsd-kind-function">
 						<a href="globals.html#createtransport" class="tsd-kind-icon">create<wbr>Transport</a>
 					</li>
-					<li class=" tsd-kind-function">
+					<li class=" tsd-kind-function tsd-is-private">
 						<a href="globals.html#validate" class="tsd-kind-icon">validate</a>
 					</li>
 				</ul>
