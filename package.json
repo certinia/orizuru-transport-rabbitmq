@@ -28,9 +28,9 @@
 	"author": "financialforce",
 	"license": "BSD-3-Clause",
 	"dependencies": {
-		"@types/amqplib": "0.5.7",
-		"@types/lodash": "4.14.110",
-		"@types/node": "10.3.4",
+		"@types/amqplib": "0.5.8",
+		"@types/lodash": "4.14.116",
+		"@types/node": "10.7.0",
 		"amqplib": "0.5.2",
 		"lodash": "4.17.10"
 	},
@@ -38,19 +38,19 @@
 		"@financialforcedev/orizuru": "git://github.com/financialforcedev/orizuru.git#feature/adopt-typescript",
 		"@types/chai": "4.1.4",
 		"@types/chai-as-promised": "7.1.0",
-		"@types/mocha": "5.2.3",
+		"@types/mocha": "5.2.5",
 		"@types/sinon": "5.0.1",
 		"@types/sinon-chai": "3.2.0",
 		"chai": "4.1.2",
 		"chai-as-promised": "7.1.1",
 		"mocha": "5.2.0",
 		"nyc": "12.0.2",
-		"sinon": "6.0.0",
+		"sinon": "6.1.5",
 		"sinon-chai": "3.2.0",
 		"ts-node": "6.1.2",
-		"tslint": "5.10.0",
+		"tslint": "5.11.0",
 		"typedoc": "0.11.1",
-		"typescript": "2.9.2"
+		"typescript": "3.0.1"
 	},
 	"nyc": {
 		"check-coverage": true,
