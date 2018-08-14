@@ -60,14 +60,10 @@ describe('index/subscribe.ts', () => {
 		it('should throw an error if the subscriber has not been initialised', () => {
 
 			// Given
-			const handler = async () => {
-				return undefined;
-			};
-
 			const subscriber = new Subscriber(channel);
 
 			// When
-			return expect(subscriber.subscribe(handler)).to.eventually.be.rejectedWith('Subscriber has not been initialised.')
+			return expect(subscriber.subscribe({} as any)).to.eventually.be.rejectedWith('Subscriber has not been initialised.')
 				.then(() => {
 					// Then
 					expect(channel.ack).to.not.have.been.called;
