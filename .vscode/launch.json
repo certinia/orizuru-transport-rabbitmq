@@ -10,15 +10,11 @@
 				"-u",
 				"tdd",
 				"--timeout",
-				"999999",
-				"--colors",
-				"--require",
-				"ts-node/register",
-				"--watch-extensions",
-				"ts",
-				"${workspaceRoot}/test/**/*.test.ts",
-				"${workspaceRoot}/test/**/**/*.test.ts"
+				"999999"
 			],
+			"env": {
+				"TS_NODE_FILES": "true"
+			},
 			"internalConsoleOptions": "openOnSessionStart"
 		}
 	]
