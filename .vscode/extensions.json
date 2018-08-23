@@ -1,7 +1,6 @@
 {
 	"recommendations": [
 		"alexdima.vscode-lcov",
-		"asvetliakov.run-current-test",
-		"dbaeumer.vscode-eslint"
+		"eg2.tslint"
 	]
 }

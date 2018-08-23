@@ -1,9 +1,9 @@
 # Orizuru Transport RabbitMQ.
 
 [![Build Status](https://travis-ci.org/financialforcedev/orizuru-transport-rabbitmq.svg?branch=master)](https://travis-ci.org/financialforcedev/orizuru-transport-rabbitmq)
-[![NSP Status](https://nodesecurity.io/orgs/ffres/projects/eb75f119-7db6-4f3a-93e5-c62dfed6bb2e/badge)](https://nodesecurity.io/orgs/ffres/projects/eb75f119-7db6-4f3a-93e5-c62dfed6bb2e)
 
 Orizuru Transport RabbitMQ is a transport library for the [Orizuru](https://www.npmjs.com/package/@financialforcedev/orizuru) framework.
+
 It is a thin wrapper around [amqplib](https://www.npmjs.com/package/amqplib) and allows Orizuru to publish and subscribe to events via [RabbitMQ](http://www.rabbitmq.com/).
 
 ## Install
@@ -16,23 +16,133 @@ $ npm install @financialforcedev/orizuru-transport-rabbitmq
 
 Use this dependency to specify the transport layer that ```@financialforcedev/orizuru``` uses as RabbitMQ.
 
-	const
-		// get classes from orizuru
-		{ Server, Handler, Publisher } = require('@financialforcedev/orizuru'),
+```typescript
+// get classes from orizuru
+import { Handler, Publisher, Server } from '@financialforcedev/orizuru';
 
-		// get the transport
-		transport = require('@financialforcedev/orizuru-transport-rabbitmq'),
+// get the transport
+import * as transport from '@financialforcedev/orizuru-transport-rabbitmq';
 
-		// configure the transport
-		transportConfig = {
-			cloudamqpUrl: 'amqp://localhost'
-		};
+// configure the transport
+const transportConfig = {
+    cloudamqpUrl:  process.env.CLOUDAMQP_URL || 'amqp://localhost'
+};
 
-	new Server({ transport, transportConfig }))...
-	new Handler({ transport, transportConfig })...
-	new Publisher({ transport, transportConfig })...
+const server = new Server({
+    transport,
+    transportConfig
+});
 
+const handler = new Handler({
+    transport,
+    transportConfig
+});
+
+const publisher = new Publisher({
+    transport,
+    transportConfig
+});
+```
+
+Messages can be published to a [work queue](https://www.rabbitmq.com/tutorials/tutorial-two-java.html) using the publisher...
+
+```typescript
+import { Publisher } from '@financialforcedev/orizuru';
+import * as transport from '@financialforcedev/orizuru-transport-rabbitmq';
+
+const app = new Publisher({ transport, transportConfig });
+
+app.publish({
+    message: {
+        context: {},
+        message: {
+            test: 'message'
+        }
+    },
+    publishOptions: {
+        eventName: 'test.queue'
+    }
+});
+```
+
+and consumed by the handler.
+
+```typescript
+import { Handler, IOrizuruMessage } from '@financialforcedev/orizuru';
+import * as transport from '@financialforcedev/orizuru-transport-rabbitmq';
+
+const app = new Handler({ transport, transportConfig });
+
+app.handle({
+    handler: ({ context, message }: IOrizuruMessage) => {
+        app.info(context);
+        app.info(message);
+    }),
+    schema: {
+        namespace: 'testNamespace',
+        name: 'testSchema',
+        type: 'record',
+        fields: [{
+            name: 'test',
+            type: 'string'
+        }]
+    },
+    subscribeOptions: {
+        eventName: 'test.queue'
+    }
+});
+```
+
+Or via a topic exchange using the [publish/subscribe](https://www.rabbitmq.com/tutorials/tutorial-three-javascript.html) mechanism.
+
+```typescript
+import { Handler, IOrizuruMessage, Publisher } from '@financialforcedev/orizuru';
+import * as transport from '@financialforcedev/orizuru-transport-rabbitmq';
+
+const publisher = new Publisher({ transport, transportConfig });
+
+publisher.publish({
+    message: {
+        context: {},
+        message: 'test message'
+    },
+    publishOptions: {
+        eventName: 'test.queue',
+        exchange: {
+            key: 'testKey',
+            name: 'testExchange',
+            type: 'topic'
+        }
+    }
+});
+
+const app = new Handler({ transport, transportConfig });
+
+app.handle({
+    handler: ({ context, message }: IOrizuruMessage) => {
+        app.info(context);
+        app.info(message);
+    }),
+    schema: {
+        namespace: 'testNamespace',
+        name: 'testSchema',
+        type: 'record',
+        fields: [{
+            name: 'test',
+            type: 'string'
+        }]
+    },
+    subscribeOptions: {
+        eventName: 'test.queue',
+        exchange: {
+            key: 'testKey',
+            name: 'testExchange',
+            type: 'topic'
+        }
+    }
+});
+```
 
 ## API Docs
 
-Click to view [JSDoc API documentation](http://htmlpreview.github.io/?https://github.com/financialforcedev/orizuru-transport-rabbitmq/blob/master/doc/index.html).
+Click to view [TSDoc API documentation](http://htmlpreview.github.io/?https://github.com/financialforcedev/orizuru-transport-rabbitmq/blob/master/doc/index.html).
