@@ -26,7 +26,7 @@
 
 import { Channel, connect as amqpConnect, Connection } from 'amqplib';
 
-import { ITransport, Options } from '@financialforcedev/orizuru';
+import { Options } from '@financialforcedev/orizuru';
 
 import { validate } from './index/optionsValidator';
 import { Publisher } from './index/publish';
@@ -69,62 +69,67 @@ declare global {
 
 }
 
-export function createTransport(): ITransport {
+let connection: Connection;
+let publishChannel: Channel;
+let subscribeChannel: Channel;
 
-	let connection: Connection;
-	let publishChannel: Channel;
-	let subscribeChannel: Channel;
+/**
+ * Closes the connection.
+ */
+export async function close() {
+	if (connection) {
+		connection.close();
+	}
+}
 
-	async function close() {
-		if (connection) {
-			connection.close();
+/**
+ * Connects to AMQP and creates a publish and subscribe channel.
+ */
+export async function connect(options: Options.Transport.IConnect) {
+
+	// Create a single connection
+	if (!connection) {
+		validate(options);
+		connection = await amqpConnect(options.url);
+	}
+
+	// Create a single publish channel
+	if (!publishChannel) {
+		publishChannel = await connection.createChannel();
+	}
+
+	// Create a single subscribe channel
+	if (!subscribeChannel) {
+		subscribeChannel = await connection.createChannel();
+
+		// Set prefetch
+		if (options.prefetch) {
+			subscribeChannel.prefetch(options.prefetch);
 		}
 	}
 
-	async function connect(options: Options.Transport.IConnect) {
+	return true;
 
-		// Create a single connection
-		if (!connection) {
-			validate(options);
-			connection = await amqpConnect(options.url);
-		}
+}
 
-		// Create a single publish channel
-		if (!publishChannel) {
-			publishChannel = await connection.createChannel();
-		}
+/**
+ * Publishes a message via AMQP.
+ * @param buffer
+ * @param options
+ */
+export async function publish(buffer: Buffer, options: Options.Transport.IPublish) {
+	const publisher = new Publisher(publishChannel);
+	await publisher.init(options);
+	return publisher.publish(buffer);
+}
 
-		// Create a single subscribe channel
-		if (!subscribeChannel) {
-			subscribeChannel = await connection.createChannel();
-
-			// Set prefetch
-			if (options.prefetch) {
-				subscribeChannel.prefetch(options.prefetch);
-			}
-		}
-
-		return true;
-
-	}
-
-	async function publish(buffer: Buffer, options: Options.Transport.IPublish) {
-		const publisher = new Publisher(publishChannel);
-		await publisher.init(options);
-		return publisher.publish(buffer);
-	}
-
-	async function subscribe(handler: (content: Buffer) => Promise<void | Orizuru.IHandlerResponse>, options: Options.Transport.ISubscribe) {
-		const subscriber = new Subscriber(subscribeChannel);
-		await subscriber.init(options);
-		return subscriber.subscribe(handler);
-	}
-
-	return {
-		close,
-		connect,
-		publish,
-		subscribe
-	};
-
+/**
+ * Handles a message from AMQP.
+ * @param handler
+ * @param options
+ */
+export async function subscribe(handler: (content: Buffer) => Promise<void | Orizuru.IHandlerResponse>, options: Options.Transport.ISubscribe) {
+	const subscriber = new Subscriber(subscribeChannel);
+	await subscriber.init(options);
+	return subscriber.subscribe(handler);
 }

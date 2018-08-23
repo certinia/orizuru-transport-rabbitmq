@@ -34,8 +34,6 @@ import amqp from 'amqplib';
 import { Publisher } from '../src/index/publish';
 import { Subscriber } from '../src/index/subscribe';
 
-import * as index from '../src/index';
-
 const expect = chai.expect;
 
 chai.use(chaiAsPromised);
@@ -43,6 +41,7 @@ chai.use(sinonChai);
 
 describe('index.ts', () => {
 
+	let transport: any;
 	let channel: any;
 	let connection: any;
 
@@ -57,11 +56,14 @@ describe('index.ts', () => {
 			createChannel: sinon.stub().resolves(channel)
 		};
 
+		transport = require('../src/index');
+
 		sinon.stub(amqp, 'connect').resolves(connection);
 
 	});
 
 	afterEach(() => {
+		delete require.cache[require.resolve('../src/index')];
 		sinon.restore();
 	});
 
@@ -70,7 +72,10 @@ describe('index.ts', () => {
 		// Given
 		// When
 		// Then
-		expect(index).to.have.property('createTransport');
+		expect(transport).to.have.property('close');
+		expect(transport).to.have.property('connect');
+		expect(transport).to.have.property('publish');
+		expect(transport).to.have.property('subscribe');
 
 	});
 
@@ -79,7 +84,6 @@ describe('index.ts', () => {
 		it('should close the connection if connect has been called', async () => {
 
 			// Given
-			const transport = index.createTransport();
 			await transport.connect({ url: 'testUrl' });
 
 			// When
@@ -97,8 +101,6 @@ describe('index.ts', () => {
 		it('should ignore closing the connection if connect has not been called', async () => {
 
 			// Given
-			const transport = index.createTransport();
-
 			// When
 			await transport.close();
 
@@ -112,59 +114,49 @@ describe('index.ts', () => {
 
 	});
 
-	describe('createTransport', () => {
+	describe('connect', () => {
 
-		describe('connect', () => {
+		it('should create a new connection', async () => {
 
-			it('should create a new connection', async () => {
+			// Given
+			// When
+			await transport.connect({ url: 'testUrl' });
 
-				// Given
-				const transport = index.createTransport();
+			// Then
+			expect(amqp.connect).to.have.been.calledOnce;
+			expect(amqp.connect).to.have.been.calledWith('testUrl');
+			expect(connection.createChannel).to.have.been.calledTwice;
+			expect(channel.prefetch).to.not.have.been.called;
 
-				// When
-				await transport.connect({ url: 'testUrl' });
+		});
 
-				// Then
-				expect(amqp.connect).to.have.been.calledOnce;
-				expect(amqp.connect).to.have.been.calledWith('testUrl');
-				expect(connection.createChannel).to.have.been.calledTwice;
-				expect(channel.prefetch).to.not.have.been.called;
+		it('should create a new subscribe channel with the prefetch set', async () => {
 
-			});
+			// Given
+			// When
+			await transport.connect({ url: 'testUrl', prefetch: 2 });
 
-			it('should create a new subscribe channel with the prefetch set', async () => {
+			// Then
+			expect(amqp.connect).to.have.been.calledOnce;
+			expect(amqp.connect).to.have.been.calledWith('testUrl');
+			expect(connection.createChannel).to.have.been.calledTwice;
+			expect(channel.prefetch).to.have.been.calledOnce;
+			expect(channel.prefetch).to.have.been.calledWith(2);
 
-				// Given
-				const transport = index.createTransport();
+		});
 
-				// When
-				await transport.connect({ url: 'testUrl', prefetch: 2 });
+		it('should only create the connection and channels once', async () => {
 
-				// Then
-				expect(amqp.connect).to.have.been.calledOnce;
-				expect(amqp.connect).to.have.been.calledWith('testUrl');
-				expect(connection.createChannel).to.have.been.calledTwice;
-				expect(channel.prefetch).to.have.been.calledOnce;
-				expect(channel.prefetch).to.have.been.calledWith(2);
+			// Given
+			// When
+			await transport.connect({ url: 'testUrl' });
+			await transport.connect({ url: 'testUrl' });
 
-			});
-
-			it('should only create the connection and channels once', async () => {
-
-				// Given
-				const transport = index.createTransport();
-
-				// When
-				await transport.connect({ url: 'testUrl' });
-				await transport.connect({ url: 'testUrl' });
-
-				// Then
-				expect(amqp.connect).to.have.been.calledOnce;
-				expect(amqp.connect).to.have.been.calledWith('testUrl');
-				expect(connection.createChannel).to.have.been.calledTwice;
-				expect(channel.prefetch).to.not.have.been.called;
-
-			});
+			// Then
+			expect(amqp.connect).to.have.been.calledOnce;
+			expect(amqp.connect).to.have.been.calledWith('testUrl');
+			expect(connection.createChannel).to.have.been.calledTwice;
+			expect(channel.prefetch).to.not.have.been.called;
 
 		});
 
@@ -179,8 +171,6 @@ describe('index.ts', () => {
 
 			sinon.stub(Publisher.prototype, 'init');
 			sinon.stub(Publisher.prototype, 'publish');
-
-			const transport = index.createTransport();
 
 			await transport.connect({ url: 'testUrl' });
 
@@ -206,8 +196,6 @@ describe('index.ts', () => {
 
 			sinon.stub(Subscriber.prototype, 'init');
 			sinon.stub(Subscriber.prototype, 'subscribe');
-
-			const transport = index.createTransport();
 
 			await transport.connect({ url: 'testUrl' });
 
