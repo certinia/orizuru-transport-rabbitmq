@@ -65,31 +65,126 @@
 		<div class="col-8 col-content">
 			<div class="tsd-panel tsd-typography">
 				<h1 id="orizuru-transport-rabbitmq-">Orizuru Transport RabbitMQ.</h1>
-				<p><a href="https://travis-ci.org/financialforcedev/orizuru-transport-rabbitmq"><img src="https://travis-ci.org/financialforcedev/orizuru-transport-rabbitmq.svg?branch=master" alt="Build Status"></a>
-				<a href="https://nodesecurity.io/orgs/ffres/projects/eb75f119-7db6-4f3a-93e5-c62dfed6bb2e"><img src="https://nodesecurity.io/orgs/ffres/projects/eb75f119-7db6-4f3a-93e5-c62dfed6bb2e/badge" alt="NSP Status"></a></p>
-				<p>Orizuru Transport RabbitMQ is a transport library for the <a href="https://www.npmjs.com/package/@financialforcedev/orizuru">Orizuru</a> framework.
-				It is a thin wrapper around <a href="https://www.npmjs.com/package/amqplib">amqplib</a> and allows Orizuru to publish and subscribe to events via <a href="http://www.rabbitmq.com/">RabbitMQ</a>.</p>
+				<p><a href="https://travis-ci.org/financialforcedev/orizuru-transport-rabbitmq"><img src="https://travis-ci.org/financialforcedev/orizuru-transport-rabbitmq.svg?branch=master" alt="Build Status"></a></p>
+				<p>Orizuru Transport RabbitMQ is a transport library for the <a href="https://www.npmjs.com/package/@financialforcedev/orizuru">Orizuru</a> framework.</p>
+				<p>It is a thin wrapper around <a href="https://www.npmjs.com/package/amqplib">amqplib</a> and allows Orizuru to publish and subscribe to events via <a href="http://www.rabbitmq.com/">RabbitMQ</a>.</p>
 				<h2 id="install">Install</h2>
-				<pre><code>$ <span class="hljs-built_in">npm</span> install @financialforcedev/orizuru-transport-rabbitmq
-</code></pre><h2 id="usage">Usage</h2>
+				<pre><code>$ <span class="hljs-built_in">npm</span> install @financialforcedev/orizuru-transport-rabbitmq</code></pre><h2 id="usage">Usage</h2>
 				<p>Use this dependency to specify the transport layer that <code>@financialforcedev/orizuru</code> uses as RabbitMQ.</p>
-				<pre><code>const
-    <span class="hljs-comment">// get classes from orizuru</span>
-    { Server, Handler, Publisher } = <span class="hljs-keyword">require</span>(<span class="hljs-string">'@financialforcedev/orizuru'</span>),
+				<pre><code class="language-typescript"><span class="hljs-comment">// get classes from orizuru</span>
+<span class="hljs-keyword">import</span> { Handler, Publisher, Server } <span class="hljs-keyword">from</span> <span class="hljs-string">'@financialforcedev/orizuru'</span>;
 
-    <span class="hljs-comment">// get the transport</span>
-    transport = <span class="hljs-keyword">require</span>(<span class="hljs-string">'@financialforcedev/orizuru-transport-rabbitmq'</span>),
+<span class="hljs-comment">// get the transport</span>
+<span class="hljs-keyword">import</span> * <span class="hljs-keyword">as</span> transport <span class="hljs-keyword">from</span> <span class="hljs-string">'@financialforcedev/orizuru-transport-rabbitmq'</span>;
 
-    <span class="hljs-comment">// configure the transport</span>
-    transportConfig = {
-        cloudamqpUrl: <span class="hljs-string">'amqp://localhost'</span>
-    };
+<span class="hljs-comment">// configure the transport</span>
+<span class="hljs-keyword">const</span> transportConfig = {
+    cloudamqpUrl:  process.env.CLOUDAMQP_URL || <span class="hljs-string">'amqp://localhost'</span>
+};
 
-<span class="hljs-literal">new</span> Server({ transport, transportConfig }))<span class="hljs-params">...</span>
-<span class="hljs-literal">new</span> Handler({ transport, transportConfig })<span class="hljs-params">...</span>
-<span class="hljs-literal">new</span> Publisher({ transport, transportConfig })<span class="hljs-params">...</span>
-</code></pre><h2 id="api-docs">API Docs</h2>
-				<p>Click to view <a href="http://htmlpreview.github.io/?https://github.com/financialforcedev/orizuru-transport-rabbitmq/blob/master/doc/index.html">JSDoc API documentation</a>.</p>
+<span class="hljs-keyword">const</span> server = <span class="hljs-keyword">new</span> Server({
+    transport,
+    transportConfig
+});
+
+<span class="hljs-keyword">const</span> handler = <span class="hljs-keyword">new</span> Handler({
+    transport,
+    transportConfig
+});
+
+<span class="hljs-keyword">const</span> publisher = <span class="hljs-keyword">new</span> Publisher({
+    transport,
+    transportConfig
+});</code></pre>
+				<p>Messages can be published to a <a href="https://www.rabbitmq.com/tutorials/tutorial-two-java.html">work queue</a> using the publisher...</p>
+				<pre><code class="language-typescript"><span class="hljs-keyword">import</span> { Publisher } <span class="hljs-keyword">from</span> <span class="hljs-string">'@financialforcedev/orizuru'</span>;
+<span class="hljs-keyword">import</span> * <span class="hljs-keyword">as</span> transport <span class="hljs-keyword">from</span> <span class="hljs-string">'@financialforcedev/orizuru-transport-rabbitmq'</span>;
+
+<span class="hljs-keyword">const</span> app = <span class="hljs-keyword">new</span> Publisher({ transport, transportConfig });
+
+app.publish({
+    message: {
+        context: {},
+        message: {
+            test: <span class="hljs-string">'message'</span>
+        }
+    },
+    publishOptions: {
+        eventName: <span class="hljs-string">'test.queue'</span>
+    }
+});</code></pre>
+				<p>and consumed by the handler.</p>
+				<pre><code class="language-typescript"><span class="hljs-keyword">import</span> { Handler, IOrizuruMessage } <span class="hljs-keyword">from</span> <span class="hljs-string">'@financialforcedev/orizuru'</span>;
+<span class="hljs-keyword">import</span> * <span class="hljs-keyword">as</span> transport <span class="hljs-keyword">from</span> <span class="hljs-string">'@financialforcedev/orizuru-transport-rabbitmq'</span>;
+
+<span class="hljs-keyword">const</span> app = <span class="hljs-keyword">new</span> Handler({ transport, transportConfig });
+
+app.handle({
+    handler: <span class="hljs-function">(<span class="hljs-params">{ context, message }: IOrizuruMessage</span>) =&gt;</span> {
+        app.info(context);
+        app.info(message);
+    }),
+    schema: {
+        <span class="hljs-keyword">namespace</span>: <span class="hljs-string">'testNamespace'</span>,
+        name: <span class="hljs-string">'testSchema'</span>,
+        <span class="hljs-keyword">type</span>: <span class="hljs-string">'record'</span>,
+        fields: [{
+            name: <span class="hljs-string">'test'</span>,
+            <span class="hljs-keyword">type</span>: <span class="hljs-string">'string'</span>
+        }]
+    },
+    subscribeOptions: {
+        eventName: <span class="hljs-string">'test.queue'</span>
+    }
+});</code></pre>
+				<p>Or via a topic exchange using the <a href="https://www.rabbitmq.com/tutorials/tutorial-three-javascript.html">publish/subscribe</a> mechanism.</p>
+				<pre><code class="language-typescript"><span class="hljs-keyword">import</span> { Handler, IOrizuruMessage, Publisher } <span class="hljs-keyword">from</span> <span class="hljs-string">'@financialforcedev/orizuru'</span>;
+<span class="hljs-keyword">import</span> * <span class="hljs-keyword">as</span> transport <span class="hljs-keyword">from</span> <span class="hljs-string">'@financialforcedev/orizuru-transport-rabbitmq'</span>;
+
+<span class="hljs-keyword">const</span> publisher = <span class="hljs-keyword">new</span> Publisher({ transport, transportConfig });
+
+publisher.publish({
+    message: {
+        context: {},
+        message: <span class="hljs-string">'test message'</span>
+    },
+    publishOptions: {
+        eventName: <span class="hljs-string">'test.queue'</span>,
+        exchange: {
+            key: <span class="hljs-string">'testKey'</span>,
+            name: <span class="hljs-string">'testExchange'</span>,
+            <span class="hljs-keyword">type</span>: <span class="hljs-string">'topic'</span>
+        }
+    }
+});
+
+<span class="hljs-keyword">const</span> app = <span class="hljs-keyword">new</span> Handler({ transport, transportConfig });
+
+app.handle({
+    handler: <span class="hljs-function">(<span class="hljs-params">{ context, message }: IOrizuruMessage</span>) =&gt;</span> {
+        app.info(context);
+        app.info(message);
+    }),
+    schema: {
+        <span class="hljs-keyword">namespace</span>: <span class="hljs-string">'testNamespace'</span>,
+        name: <span class="hljs-string">'testSchema'</span>,
+        <span class="hljs-keyword">type</span>: <span class="hljs-string">'record'</span>,
+        fields: [{
+            name: <span class="hljs-string">'test'</span>,
+            <span class="hljs-keyword">type</span>: <span class="hljs-string">'string'</span>
+        }]
+    },
+    subscribeOptions: {
+        eventName: <span class="hljs-string">'test.queue'</span>,
+        exchange: {
+            key: <span class="hljs-string">'testKey'</span>,
+            name: <span class="hljs-string">'testExchange'</span>,
+            <span class="hljs-keyword">type</span>: <span class="hljs-string">'topic'</span>
+        }
+    }
+});</code></pre>
+				<h2 id="api-docs">API Docs</h2>
+				<p>Click to view <a href="http://htmlpreview.github.io/?https://github.com/financialforcedev/orizuru-transport-rabbitmq/blob/master/doc/index.html">TSDoc API documentation</a>.</p>
 			</div>
 		</div>
 		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
@@ -117,8 +212,26 @@
 					<li class=" tsd-kind-class tsd-is-private">
 						<a href="classes/subscriber.html" class="tsd-kind-icon">Subscriber</a>
 					</li>
+					<li class=" tsd-kind-variable tsd-is-not-exported">
+						<a href="globals.html#connection" class="tsd-kind-icon">connection</a>
+					</li>
+					<li class=" tsd-kind-variable tsd-is-not-exported">
+						<a href="globals.html#publishchannel" class="tsd-kind-icon">publish<wbr>Channel</a>
+					</li>
+					<li class=" tsd-kind-variable tsd-is-not-exported">
+						<a href="globals.html#subscribechannel" class="tsd-kind-icon">subscribe<wbr>Channel</a>
+					</li>
 					<li class=" tsd-kind-function">
-						<a href="globals.html#createtransport" class="tsd-kind-icon">create<wbr>Transport</a>
+						<a href="globals.html#close" class="tsd-kind-icon">close</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="globals.html#connect" class="tsd-kind-icon">connect</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="globals.html#publish" class="tsd-kind-icon">publish</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="globals.html#subscribe" class="tsd-kind-icon">subscribe</a>
 					</li>
 					<li class=" tsd-kind-function tsd-is-private">
 						<a href="globals.html#validate" class="tsd-kind-icon">validate</a>
