@@ -36,7 +36,7 @@ const expect = chai.expect;
 chai.use(chaiAsPromised);
 chai.use(sinonChai);
 
-describe('index/subscribe.ts', () => {
+describe('index/subscribe', () => {
 
 	let channel: any;
 

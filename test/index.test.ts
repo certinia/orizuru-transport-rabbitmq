@@ -39,7 +39,7 @@ const expect = chai.expect;
 chai.use(chaiAsPromised);
 chai.use(sinonChai);
 
-describe('index.ts', () => {
+describe('index', () => {
 
 	let transport: any;
 	let channel: any;
@@ -67,7 +67,7 @@ describe('index.ts', () => {
 		sinon.restore();
 	});
 
-	it('should expose the createTransport function', () => {
+	it('should expose the ITransport functions', () => {
 
 		// Given
 		// When

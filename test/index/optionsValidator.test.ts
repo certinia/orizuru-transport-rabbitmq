@@ -30,7 +30,7 @@ import { validate } from '../../src/index/optionsValidator';
 
 const expect = chai.expect;
 
-describe('index/optionsValidator.ts', () => {
+describe('index/optionsValidator', () => {
 
 	describe('should reject', () => {
 
