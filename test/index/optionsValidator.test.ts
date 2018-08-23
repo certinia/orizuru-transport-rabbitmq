@@ -26,38 +26,48 @@
 
 import chai from 'chai';
 
-import configValidator from '../../src/index/configValidator';
+import { validate } from '../../src/index/optionsValidator';
 
 const expect = chai.expect;
 
-describe('index/configValidator.ts', () => {
+describe('index/optionsValidator.ts', () => {
 
 	describe('should reject', () => {
 
 		it('if the options are undefined', () => {
 
 			// Given
+			const options: any = undefined;
+
 			// When
 			// Then
-			expect(() => configValidator(undefined as any)).to.throw('Invalid parameter: null options.');
+			expect(() => validate(options)).to.throw('Invalid parameter: null options.');
 
 		});
 
 		it('if the options url is undefined', () => {
 
 			// Given
+			const options: any = {
+				url: undefined
+			};
+
 			// When
 			// Then
-			expect(() => configValidator({ url: undefined } as any)).to.throw('Invalid parameter: url not a string.');
+			expect(() => validate(options)).to.throw('Invalid parameter: url not a string.');
 
 		});
 
 		it('if the options url is not a string', () => {
 
 			// Given
+			const options: any = {
+				url: 2
+			};
+
 			// When
 			// Then
-			expect(() => configValidator({ url: 2 } as any)).to.throw('Invalid parameter: url not a string.');
+			expect(() => validate(options)).to.throw('Invalid parameter: url not a string.');
 
 		});
 
@@ -70,7 +80,7 @@ describe('index/configValidator.ts', () => {
 			// Given
 			// When
 			// Then
-			expect(configValidator({ url: 'testing' })).to.not.throw;
+			expect(validate({ url: 'testing' })).to.not.throw;
 
 		});
 

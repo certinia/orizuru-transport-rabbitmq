@@ -28,9 +28,46 @@ import { Channel, connect as amqpConnect, Connection } from 'amqplib';
 
 import { ITransport, Options } from '@financialforcedev/orizuru';
 
-import { default as validate } from './index/configValidator';
-import Publisher from './index/publish';
-import Subscriber from './index/subscribe';
+import { validate } from './index/optionsValidator';
+import { Publisher } from './index/publish';
+import { Subscriber } from './index/subscribe';
+
+declare global {
+
+	namespace Orizuru {
+
+		interface IHandlerResponse {
+			retry: boolean;
+		}
+
+		namespace Transport {
+
+			interface IConnect {
+				prefetch?: number;
+			}
+
+			interface IPublish {
+				exchange?: {
+					key?: string;
+					keyFunction?: ((options: Options.Transport.IPublish) => string);
+					name?: string;
+					type?: string;
+				};
+			}
+
+			interface ISubscribe {
+				exchange?: {
+					key?: string;
+					keyFunction?: ((options: Options.Transport.ISubscribe) => string);
+					name: string;
+					type?: string;
+				};
+			}
+		}
+
+	}
+
+}
 
 export function createTransport(): ITransport {
 
@@ -89,42 +126,5 @@ export function createTransport(): ITransport {
 		publish,
 		subscribe
 	};
-
-}
-
-declare global {
-
-	namespace Orizuru {
-
-		interface IHandlerResponse {
-			retry: boolean;
-		}
-
-		namespace Transport {
-
-			interface IConnect {
-				prefetch?: number;
-			}
-
-			interface IPublish {
-				exchange?: {
-					key?: string;
-					keyFunction?: ((options: Options.Transport.IPublish) => string);
-					name?: string;
-					type?: string;
-				};
-			}
-
-			interface ISubscribe {
-				exchange?: {
-					key?: string;
-					keyFunction?: ((options: Options.Transport.ISubscribe) => string);
-					name: string;
-					type?: string;
-				};
-			}
-		}
-
-	}
 
 }

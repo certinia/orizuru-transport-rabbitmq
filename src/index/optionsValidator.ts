@@ -31,7 +31,7 @@ import { Options } from '@financialforcedev/orizuru';
 /**
  * @private
  */
-export default function validate(options: Options.Transport.IConnect) {
+export function validate(options: Options.Transport.IConnect) {
 
 	if (options == null) {
 		throw new Error('Invalid parameter: null options.');

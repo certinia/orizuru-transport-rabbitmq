@@ -29,7 +29,7 @@ import chaiAsPromised from 'chai-as-promised';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 
-import Publisher from '../../src/index/publish';
+import { Publisher } from '../../src/index/publish';
 
 const expect = chai.expect;
 
@@ -55,7 +55,7 @@ describe('index/publish.ts', () => {
 
 	describe('publish', () => {
 
-		it('should throw an error if the publisher has not been initialised', () => {
+		it('should throw an error if the publisher has not been initialised', async () => {
 
 			// Given
 			const buffer = new Buffer('test');
@@ -63,13 +63,12 @@ describe('index/publish.ts', () => {
 			const publish = new Publisher(channel);
 
 			// When
-			return expect(publish.publish(buffer)).to.eventually.be.rejectedWith('Publisher has not been initialised.')
-				.then(() => {
-					// Then
-					expect(channel.assertExchange).to.not.have.been.called;
-					expect(channel.publish).to.not.have.been.called;
-					expect(channel.sendToQueue).to.not.have.been.called;
-				});
+			await expect(publish.publish(buffer)).to.eventually.be.rejectedWith('Publisher has not been initialised.');
+
+			// Then
+			expect(channel.assertExchange).to.not.have.been.called;
+			expect(channel.publish).to.not.have.been.called;
+			expect(channel.sendToQueue).to.not.have.been.called;
 
 		});
 

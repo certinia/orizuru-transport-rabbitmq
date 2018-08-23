@@ -31,7 +31,7 @@ import { Options } from '@financialforcedev/orizuru';
 /**
  * @private
  */
-export default class Publisher {
+export class Publisher {
 
 	private readonly channel: Channel;
 	private publishFunction?: ((buffer: Buffer) => boolean);

@@ -31,7 +31,7 @@ import { Options } from '@financialforcedev/orizuru';
 /**
  * @private
  */
-export default class Subscriber {
+export class Subscriber {
 
 	private readonly channel: Channel;
 	private eventName: string | undefined;

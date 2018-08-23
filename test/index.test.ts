@@ -31,8 +31,8 @@ import sinonChai from 'sinon-chai';
 
 import amqp from 'amqplib';
 
-import Publisher from '../src/index/publish';
-import Subscriber from '../src/index/subscribe';
+import { Publisher } from '../src/index/publish';
+import { Subscriber } from '../src/index/subscribe';
 
 import * as index from '../src/index';
 

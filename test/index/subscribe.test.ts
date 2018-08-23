@@ -29,7 +29,7 @@ import chaiAsPromised from 'chai-as-promised';
 import sinon, { SinonStub } from 'sinon';
 import sinonChai from 'sinon-chai';
 
-import Subscriber from '../../src/index/subscribe';
+import { Subscriber } from '../../src/index/subscribe';
 
 const expect = chai.expect;
 
@@ -57,22 +57,22 @@ describe('index/subscribe.ts', () => {
 
 	describe('subscribe', () => {
 
-		it('should throw an error if the subscriber has not been initialised', () => {
+		it('should throw an error if the subscriber has not been initialised', async () => {
 
 			// Given
 			const subscriber = new Subscriber(channel);
+			const options: any = {};
 
 			// When
-			return expect(subscriber.subscribe({} as any)).to.eventually.be.rejectedWith('Subscriber has not been initialised.')
-				.then(() => {
-					// Then
-					expect(channel.ack).to.not.have.been.called;
-					expect(channel.assertExchange).to.not.have.been.called;
-					expect(channel.assertQueue).to.not.have.been.called;
-					expect(channel.bindQueue).to.not.have.been.called;
-					expect(channel.consume).to.not.have.been.called;
-					expect(channel.nack).to.not.have.been.called;
-				});
+			await expect(subscriber.subscribe(options)).to.eventually.be.rejectedWith('Subscriber has not been initialised.');
+
+			// Then
+			expect(channel.ack).to.not.have.been.called;
+			expect(channel.assertExchange).to.not.have.been.called;
+			expect(channel.assertQueue).to.not.have.been.called;
+			expect(channel.bindQueue).to.not.have.been.called;
+			expect(channel.consume).to.not.have.been.called;
+			expect(channel.nack).to.not.have.been.called;
 
 		});
 
