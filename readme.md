@@ -22,7 +22,7 @@ Use this dependency to specify the transport layer that ```@financialforcedev/or
 import { Handler, Publisher, Server } from '@financialforcedev/orizuru';
 
 // get the transport
-import { createTransport } from '@financialforcedev/orizuru-transport-rabbitmq';
+import * as transport from '@financialforcedev/orizuru-transport-rabbitmq';
 
 // configure the transport
 const transportConfig = {
@@ -30,17 +30,17 @@ const transportConfig = {
 };
 
 const server = new Server({
-    transport: createTransport(),
+    transport,
     transportConfig
 });
 
 const handler = new Handler({
-    transport: createTransport(),
+    transport,
     transportConfig
 });
 
 const publisher = new Publisher({
-    transport: createTransport(),
+    transport,
     transportConfig
 });
 ```
@@ -49,8 +49,9 @@ Messages can be published to a [work queue](https://www.rabbitmq.com/tutorials/t
 
 ```typescript
 import { Publisher } from '@financialforcedev/orizuru';
+import * as transport from '@financialforcedev/orizuru-transport-rabbitmq';
 
-const app = new Publisher({ transport: createTransport(), transportConfig });
+const app = new Publisher({ transport, transportConfig });
 
 app.publish({
     message: {
@@ -69,8 +70,9 @@ and consumed by the handler.
 
 ```typescript
 import { Handler, IOrizuruMessage } from '@financialforcedev/orizuru';
+import * as transport from '@financialforcedev/orizuru-transport-rabbitmq';
 
-const app = new Handler({ transport: createTransport(), transportConfig });
+const app = new Handler({ transport, transportConfig });
 
 app.handle({
     handler: ({ context, message }: IOrizuruMessage) => {
@@ -96,8 +98,9 @@ Or via a topic exchange using the [publish/subscribe](https://www.rabbitmq.com/t
 
 ```typescript
 import { Handler, IOrizuruMessage, Publisher } from '@financialforcedev/orizuru';
+import * as transport from '@financialforcedev/orizuru-transport-rabbitmq';
 
-const publisher = new Publisher({ transport: createTransport(), transportConfig });
+const publisher = new Publisher({ transport, transportConfig });
 
 publisher.publish({
     message: {
@@ -114,7 +117,7 @@ publisher.publish({
     }
 });
 
-const app = new Handler({ transport: createTransport(), transportConfig });
+const app = new Handler({ transport, transportConfig });
 
 app.handle({
     handler: ({ context, message }: IOrizuruMessage) => {
@@ -143,4 +146,4 @@ app.handle({
 
 ## API Docs
 
-Click to view [JSDoc API documentation](http://htmlpreview.github.io/?https://github.com/financialforcedev/orizuru-transport-rabbitmq/blob/master/doc/index.html).
+Click to view [TSDoc API documentation](http://htmlpreview.github.io/?https://github.com/financialforcedev/orizuru-transport-rabbitmq/blob/master/doc/index.html).
