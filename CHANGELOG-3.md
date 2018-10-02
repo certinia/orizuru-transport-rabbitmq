@@ -2,11 +2,11 @@
 
 ## v3.2.2
 
-Dependency update for security advisories.
+- Dependency update for security advisories.
 
 ## v3.2.1
 
-Bug fix release.
+- Bug fix release.
 
 ### BUGS FIXED
 

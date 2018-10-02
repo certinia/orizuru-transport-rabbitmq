@@ -69,16 +69,19 @@ declare global {
 
 }
 
-let connection: Connection;
-let publishChannel: Channel;
-let subscribeChannel: Channel;
+let connection: Connection | undefined;
+let publishChannel: Channel | undefined;
+let subscribeChannel: Channel | undefined;
 
 /**
  * Closes the connection.
  */
 export async function close() {
 	if (connection) {
-		connection.close();
+		await connection.close();
+		publishChannel = undefined;
+		subscribeChannel = undefined;
+		connection = undefined;
 	}
 }
 
@@ -118,6 +121,9 @@ export async function connect(options: Options.Transport.IConnect) {
  * @param options
  */
 export async function publish(buffer: Buffer, options: Options.Transport.IPublish) {
+	if (!publishChannel) {
+		throw new Error('Transport has not been initialised.');
+	}
 	const publisher = new Publisher(publishChannel);
 	await publisher.init(options);
 	return publisher.publish(buffer);
@@ -129,6 +135,9 @@ export async function publish(buffer: Buffer, options: Options.Transport.IPublis
  * @param options
  */
 export async function subscribe(handler: (content: Buffer) => Promise<void | Orizuru.IHandlerResponse>, options: Options.Transport.ISubscribe) {
+	if (!subscribeChannel) {
+		throw new Error('Transport has not been initialised.');
+	}
 	const subscriber = new Subscriber(subscribeChannel);
 	await subscriber.init(options);
 	return subscriber.subscribe(handler);
