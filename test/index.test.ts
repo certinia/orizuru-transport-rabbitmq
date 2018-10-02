@@ -90,6 +90,10 @@ describe('index', () => {
 			await transport.close();
 
 			// Then
+			expect(transport.connection).to.be.undefined;
+			expect(transport.publishChannel).to.be.undefined;
+			expect(transport.subscribeChannel).to.be.undefined;
+
 			expect(amqp.connect).to.have.been.calledOnce;
 			expect(amqp.connect).to.have.been.calledWith('testUrl');
 			expect(connection.createChannel).to.have.been.calledTwice;
@@ -105,6 +109,10 @@ describe('index', () => {
 			await transport.close();
 
 			// Then
+			expect(transport.connection).to.be.undefined;
+			expect(transport.publishChannel).to.be.undefined;
+			expect(transport.subscribeChannel).to.be.undefined;
+
 			expect(amqp.connect).to.not.have.been.called;
 			expect(connection.createChannel).to.not.have.been.called;
 			expect(channel.prefetch).to.not.have.been.called;
@@ -164,6 +172,16 @@ describe('index', () => {
 
 	describe('publish', () => {
 
+		it('should throw an error if the transport has been initialised', () => {
+
+			// Given
+			const buffer = new Buffer('test');
+
+			// When
+			expect(transport.publish(buffer, {})).to.be.rejectedWith('Transport has not been initialised.');
+
+		});
+
 		it('should publish the message buffer', async () => {
 
 			// Given
@@ -187,6 +205,17 @@ describe('index', () => {
 	});
 
 	describe('subscribe', () => {
+
+		it('should throw an error if the transport has been initialised', () => {
+
+			// Given
+			const handler = sinon.stub();
+			const options = { eventName: 'test' };
+
+			// When
+			expect(transport.subscribe(handler, options)).to.be.rejectedWith('Transport has not been initialised.');
+
+		});
 
 		it('should subscribe with the handler', async () => {
 
