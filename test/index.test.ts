@@ -31,8 +31,12 @@ import sinonChai from 'sinon-chai';
 
 import amqp from 'amqplib';
 
+import * as optionsValidator from '../src/index/optionsValidator';
+
 import { Publisher } from '../src/index/publish';
 import { Subscriber } from '../src/index/subscribe';
+
+import { Options, Transport } from '../src/index';
 
 const expect = chai.expect;
 
@@ -56,26 +60,37 @@ describe('index', () => {
 			createChannel: sinon.stub().resolves(channel)
 		};
 
-		transport = require('../src/index');
-
 		sinon.stub(amqp, 'connect').resolves(connection);
+		sinon.stub(optionsValidator, 'validate');
 
 	});
 
 	afterEach(() => {
-		delete require.cache[require.resolve('../src/index')];
 		sinon.restore();
 	});
 
-	it('should expose the ITransport functions', () => {
+	describe('constructor', () => {
 
-		// Given
-		// When
-		// Then
-		expect(transport).to.have.property('close');
-		expect(transport).to.have.property('connect');
-		expect(transport).to.have.property('publish');
-		expect(transport).to.have.property('subscribe');
+		it('should extend ITransport', () => {
+
+			// Given
+			const options: Options = {
+				url: 'amqp://localhost'
+			};
+
+			// When
+			transport = new Transport(options);
+
+			// Then
+			expect(transport).to.have.property('close').that.is.a('function');
+			expect(transport).to.have.property('connect').that.is.a('function');
+			expect(transport).to.have.property('publish').that.is.a('function');
+			expect(transport).to.have.property('subscribe').that.is.a('function');
+
+			expect(optionsValidator.validate).to.have.been.calledOnce;
+			expect(optionsValidator.validate).to.have.been.calledWithExactly(options);
+
+		});
 
 	});
 
@@ -84,18 +99,19 @@ describe('index', () => {
 		it('should close the connection if connect has been called', async () => {
 
 			// Given
-			await transport.connect({ url: 'testUrl' });
+			transport = new Transport({
+				url: 'amqp://localhost'
+			});
+
+			await transport.connect();
 
 			// When
 			await transport.close();
 
 			// Then
-			expect(transport.connection).to.be.undefined;
-			expect(transport.publishChannel).to.be.undefined;
-			expect(transport.subscribeChannel).to.be.undefined;
-
+			expect(optionsValidator.validate).to.have.been.calledOnce;
 			expect(amqp.connect).to.have.been.calledOnce;
-			expect(amqp.connect).to.have.been.calledWith('testUrl');
+			expect(amqp.connect).to.have.been.calledWithExactly('amqp://localhost');
 			expect(connection.createChannel).to.have.been.calledTwice;
 			expect(channel.prefetch).to.not.have.been.called;
 			expect(connection.close).to.have.been.calledOnce;
@@ -105,14 +121,15 @@ describe('index', () => {
 		it('should ignore closing the connection if connect has not been called', async () => {
 
 			// Given
+			transport = new Transport({
+				url: 'amqp://localhost'
+			});
+
 			// When
 			await transport.close();
 
 			// Then
-			expect(transport.connection).to.be.undefined;
-			expect(transport.publishChannel).to.be.undefined;
-			expect(transport.subscribeChannel).to.be.undefined;
-
+			expect(optionsValidator.validate).to.have.been.calledOnce;
 			expect(amqp.connect).to.not.have.been.called;
 			expect(connection.createChannel).to.not.have.been.called;
 			expect(channel.prefetch).to.not.have.been.called;
@@ -127,42 +144,58 @@ describe('index', () => {
 		it('should create a new connection', async () => {
 
 			// Given
+			transport = new Transport({
+				url: 'amqp://localhost'
+			});
+
 			// When
-			await transport.connect({ url: 'testUrl' });
+			await transport.connect();
 
 			// Then
+			expect(optionsValidator.validate).to.have.been.calledOnce;
 			expect(amqp.connect).to.have.been.calledOnce;
-			expect(amqp.connect).to.have.been.calledWith('testUrl');
+			expect(amqp.connect).to.have.been.calledWithExactly('amqp://localhost');
 			expect(connection.createChannel).to.have.been.calledTwice;
 			expect(channel.prefetch).to.not.have.been.called;
 
 		});
 
-		it('should create a new subscribe channel with the prefetch set', async () => {
+		it('should create a new subscribe channel with prefetch set', async () => {
 
 			// Given
+			transport = new Transport({
+				prefetch: 2,
+				url: 'amqp://localhost'
+			});
+
 			// When
-			await transport.connect({ url: 'testUrl', prefetch: 2 });
+			await transport.connect();
 
 			// Then
+			expect(optionsValidator.validate).to.have.been.calledOnce;
 			expect(amqp.connect).to.have.been.calledOnce;
-			expect(amqp.connect).to.have.been.calledWith('testUrl');
+			expect(amqp.connect).to.have.been.calledWithExactly('amqp://localhost');
 			expect(connection.createChannel).to.have.been.calledTwice;
 			expect(channel.prefetch).to.have.been.calledOnce;
-			expect(channel.prefetch).to.have.been.calledWith(2);
+			expect(channel.prefetch).to.have.been.calledWithExactly(2);
 
 		});
 
 		it('should only create the connection and channels once', async () => {
 
 			// Given
+			transport = new Transport({
+				url: 'amqp://localhost'
+			});
+
 			// When
-			await transport.connect({ url: 'testUrl' });
-			await transport.connect({ url: 'testUrl' });
+			await transport.connect();
+			await transport.connect();
 
 			// Then
+			expect(optionsValidator.validate).to.have.been.calledOnce;
 			expect(amqp.connect).to.have.been.calledOnce;
-			expect(amqp.connect).to.have.been.calledWith('testUrl');
+			expect(amqp.connect).to.have.been.calledWithExactly('amqp://localhost');
 			expect(connection.createChannel).to.have.been.calledTwice;
 			expect(channel.prefetch).to.not.have.been.called;
 
@@ -172,7 +205,13 @@ describe('index', () => {
 
 	describe('publish', () => {
 
-		it('should throw an error if the transport has been initialised', () => {
+		beforeEach(() => {
+			transport = new Transport({
+				url: 'amqp://localhost'
+			});
+		});
+
+		it('should throw an error if the transport has not been initialised', () => {
 
 			// Given
 			const buffer = new Buffer('test');
@@ -198,7 +237,7 @@ describe('index', () => {
 			// Then
 			expect(Publisher.prototype.init).to.have.been.calledOnce;
 			expect(Publisher.prototype.publish).to.have.been.calledOnce;
-			expect(Publisher.prototype.publish).to.have.been.calledWith(buffer);
+			expect(Publisher.prototype.publish).to.have.been.calledWithExactly(buffer);
 
 		});
 
@@ -206,7 +245,13 @@ describe('index', () => {
 
 	describe('subscribe', () => {
 
-		it('should throw an error if the transport has been initialised', () => {
+		beforeEach(() => {
+			transport = new Transport({
+				url: 'amqp://localhost'
+			});
+		});
+
+		it('should throw an error if the transport has not been initialised', () => {
 
 			// Given
 			const handler = sinon.stub();
@@ -233,9 +278,9 @@ describe('index', () => {
 
 			// Then
 			expect(Subscriber.prototype.init).to.have.been.calledOnce;
-			expect(Subscriber.prototype.init).to.have.been.calledWith(options);
+			expect(Subscriber.prototype.init).to.have.been.calledWithExactly(options);
 			expect(Subscriber.prototype.subscribe).to.have.been.calledOnce;
-			expect(Subscriber.prototype.subscribe).to.have.been.calledWith(handler);
+			expect(Subscriber.prototype.subscribe).to.have.been.calledWithExactly(handler);
 
 		});
 
