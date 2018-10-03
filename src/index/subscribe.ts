@@ -26,8 +26,6 @@
 
 import { Channel, Message } from 'amqplib';
 
-import { Options } from '@financialforcedev/orizuru';
-
 /**
  * @private
  */
@@ -40,7 +38,7 @@ export class Subscriber {
 		this.channel = channel;
 	}
 
-	public async init(options: Options.Transport.ISubscribe) {
+	public async init(options: Orizuru.Transport.ISubscribe) {
 
 		this.eventName = options.eventName;
 
