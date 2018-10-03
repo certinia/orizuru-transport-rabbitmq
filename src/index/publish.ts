@@ -42,9 +42,8 @@ export class Publisher {
 
 		if (options.exchange) {
 
-			const exchange = options.exchange;
-			const name = exchange.name as string;
-			const type = exchange.type || 'fanout';
+			const { exchange } = options;
+			const { name, type } = exchange;
 			const key = exchange.key || exchange.keyFunction && exchange.keyFunction(options) || '';
 
 			// Ensure the exchange exists
@@ -56,7 +55,7 @@ export class Publisher {
 
 		} else {
 
-			const eventName = options.eventName as string;
+			const { eventName } = options;
 
 			// Ensure the queue exists
 			await this.channel.assertQueue(eventName);

@@ -44,9 +44,8 @@ export class Subscriber {
 
 		if (options.exchange) {
 
-			const exchange = options.exchange;
-			const name = exchange.name;
-			const type = exchange.type || 'fanout';
+			const { exchange } = options;
+			const { name, type } = exchange;
 			const key = exchange.key || '';
 
 			await this.channel.assertExchange(name, type, { durable: false });

@@ -30,6 +30,8 @@ import { validate } from './index/optionsValidator';
 import { Publisher } from './index/publish';
 import { Subscriber } from './index/subscribe';
 
+export type ExchangeType = 'fanout' | 'topic';
+
 declare global {
 
 	namespace Orizuru {
@@ -45,8 +47,8 @@ declare global {
 				exchange?: {
 					key?: string;
 					keyFunction?: ((options: Orizuru.Transport.IPublish) => string);
-					name?: string;
-					type?: string;
+					name: string;
+					type: ExchangeType;
 				};
 			}
 
@@ -56,7 +58,7 @@ declare global {
 					key?: string;
 					keyFunction?: ((options: Orizuru.Transport.ISubscribe) => string);
 					name: string;
-					type?: string;
+					type: ExchangeType;
 				};
 			}
 		}
@@ -121,8 +123,6 @@ export class Transport {
 
 	/**
 	 * Publishes a message via AMQP.
-	 * @param buffer
-	 * @param options
 	 */
 	public async publish(buffer: Buffer, options: Orizuru.Transport.IPublish) {
 		if (!this.publishChannel) {
@@ -135,8 +135,6 @@ export class Transport {
 
 	/**
 	 * Handles a message from AMQP.
-	 * @param handler
-	 * @param options
 	 */
 	public async subscribe(handler: (content: Buffer) => Promise<void | Orizuru.IHandlerResponse>, options: Orizuru.Transport.ISubscribe) {
 		if (!this.subscribeChannel) {

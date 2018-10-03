@@ -99,10 +99,11 @@ describe('index/publish', () => {
 			// Given
 			const buffer = new Buffer('test');
 
-			const options = {
+			const options: Orizuru.Transport.IPublish = {
 				eventName: 'test',
 				exchange: {
-					name: 'exchange1'
+					name: 'exchange1',
+					type: 'fanout'
 				}
 			};
 
@@ -126,7 +127,7 @@ describe('index/publish', () => {
 			// Given
 			const buffer = new Buffer('test');
 
-			const options = {
+			const options: Orizuru.Transport.IPublish = {
 				eventName: 'test',
 				exchange: {
 					key: 'testKey',
@@ -155,7 +156,7 @@ describe('index/publish', () => {
 			// Given
 			const buffer = new Buffer('test');
 
-			const options = {
+			const options: Orizuru.Transport.IPublish = {
 				eventName: 'test',
 				exchange: {
 					keyFunction: () => {
