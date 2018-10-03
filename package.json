@@ -35,7 +35,6 @@
 		"lodash": "^4.17.10"
 	},
 	"devDependencies": {
-		"@financialforcedev/orizuru": "^7.0.0",
 		"@types/chai": "^4.1.4",
 		"@types/chai-as-promised": "^7.1.0",
 		"@types/mocha": "^5.2.5",
