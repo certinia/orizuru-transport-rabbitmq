@@ -89,7 +89,7 @@ describe('index/publish', () => {
 
 			// Then
 			expect(channel.sendToQueue).to.have.been.calledOnce;
-			expect(channel.sendToQueue).to.have.been.calledWith('test', buffer);
+			expect(channel.sendToQueue).to.have.been.calledWithExactly('test', buffer);
 			expect(channel.assertExchange).to.not.have.been.called;
 
 		});
@@ -99,10 +99,11 @@ describe('index/publish', () => {
 			// Given
 			const buffer = new Buffer('test');
 
-			const options = {
+			const options: Orizuru.Transport.IPublish = {
 				eventName: 'test',
 				exchange: {
-					name: 'exchange1'
+					name: 'exchange1',
+					type: 'fanout'
 				}
 			};
 
@@ -114,9 +115,9 @@ describe('index/publish', () => {
 
 			// Then
 			expect(channel.assertExchange).to.have.been.calledOnce;
-			expect(channel.assertExchange).to.have.been.calledWith('exchange1', 'fanout', { durable: false });
+			expect(channel.assertExchange).to.have.been.calledWithExactly('exchange1', 'fanout', { durable: false });
 			expect(channel.publish).to.have.been.calledOnce;
-			expect(channel.publish).to.have.been.calledWith('exchange1', '', buffer);
+			expect(channel.publish).to.have.been.calledWithExactly('exchange1', '', buffer);
 			expect(channel.sendToQueue).to.not.have.been.called;
 
 		});
@@ -126,7 +127,7 @@ describe('index/publish', () => {
 			// Given
 			const buffer = new Buffer('test');
 
-			const options = {
+			const options: Orizuru.Transport.IPublish = {
 				eventName: 'test',
 				exchange: {
 					key: 'testKey',
@@ -143,9 +144,9 @@ describe('index/publish', () => {
 
 			// Then
 			expect(channel.assertExchange).to.have.been.calledOnce;
-			expect(channel.assertExchange).to.have.been.calledWith('exchange1', 'topic', { durable: false });
+			expect(channel.assertExchange).to.have.been.calledWithExactly('exchange1', 'topic', { durable: false });
 			expect(channel.publish).to.have.been.calledOnce;
-			expect(channel.publish).to.have.been.calledWith('exchange1', 'testKey', buffer);
+			expect(channel.publish).to.have.been.calledWithExactly('exchange1', 'testKey', buffer);
 			expect(channel.sendToQueue).to.not.have.been.called;
 
 		});
@@ -155,7 +156,7 @@ describe('index/publish', () => {
 			// Given
 			const buffer = new Buffer('test');
 
-			const options = {
+			const options: Orizuru.Transport.IPublish = {
 				eventName: 'test',
 				exchange: {
 					keyFunction: () => {
@@ -174,9 +175,9 @@ describe('index/publish', () => {
 
 			// Then
 			expect(channel.assertExchange).to.have.been.calledOnce;
-			expect(channel.assertExchange).to.have.been.calledWith('exchange1', 'topic', { durable: false });
+			expect(channel.assertExchange).to.have.been.calledWithExactly('exchange1', 'topic', { durable: false });
 			expect(channel.publish).to.have.been.calledOnce;
-			expect(channel.publish).to.have.been.calledWith('exchange1', 'testKey', buffer);
+			expect(channel.publish).to.have.been.calledWithExactly('exchange1', 'testKey', buffer);
 			expect(channel.sendToQueue).to.not.have.been.called;
 
 		});

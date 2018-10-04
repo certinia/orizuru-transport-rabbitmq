@@ -111,10 +111,11 @@ describe('index/subscribe', () => {
 
 			const handler = sinon.stub();
 
-			const options = {
+			const options: Orizuru.Transport.ISubscribe = {
 				eventName: 'eventName',
 				exchange: {
-					name: 'testExchange'
+					name: 'testExchange',
+					type: 'fanout'
 				}
 			};
 
@@ -142,7 +143,7 @@ describe('index/subscribe', () => {
 
 			const handler = sinon.stub();
 
-			const options = {
+			const options: Orizuru.Transport.ISubscribe = {
 				eventName: 'eventName'
 			};
 

@@ -26,8 +26,6 @@
 
 import { Channel, Message } from 'amqplib';
 
-import { Options } from '@financialforcedev/orizuru';
-
 /**
  * @private
  */
@@ -40,15 +38,14 @@ export class Subscriber {
 		this.channel = channel;
 	}
 
-	public async init(options: Options.Transport.ISubscribe) {
+	public async init(options: Orizuru.Transport.ISubscribe) {
 
 		this.eventName = options.eventName;
 
 		if (options.exchange) {
 
-			const exchange = options.exchange;
-			const name = exchange.name;
-			const type = exchange.type || 'fanout';
+			const { exchange } = options;
+			const { name, type } = exchange;
 			const key = exchange.key || '';
 
 			await this.channel.assertExchange(name, type, { durable: false });

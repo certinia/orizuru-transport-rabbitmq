@@ -26,12 +26,12 @@
 
 import _ from 'lodash';
 
-import { Options } from '@financialforcedev/orizuru';
+import { Options } from '..';
 
 /**
  * @private
  */
-export function validate(options: Options.Transport.IConnect) {
+export function validate(options: Options) {
 
 	if (options == null) {
 		throw new Error('Invalid parameter: null options.');
