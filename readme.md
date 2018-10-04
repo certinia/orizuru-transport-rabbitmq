@@ -14,33 +14,30 @@ $ npm install @financialforcedev/orizuru-transport-rabbitmq
 
 ## Usage
 
-Use this dependency to specify the transport layer that ```@financialforcedev/orizuru``` uses as RabbitMQ.
+Use this dependency to specify the transport layer that `@financialforcedev/orizuru` uses as RabbitMQ.
 
 ```typescript
 // get classes from orizuru
 import { Handler, Publisher, Server } from '@financialforcedev/orizuru';
 
 // get the transport
-import * as transport from '@financialforcedev/orizuru-transport-rabbitmq';
+import { Transport } from '@financialforcedev/orizuru-transport-rabbitmq';
 
-// configure the transport
-const transportConfig = {
-    cloudamqpUrl:  process.env.CLOUDAMQP_URL || 'amqp://localhost'
-};
+// create the transport
+const transport = new Transport({
+    url:  process.env.CLOUDAMQP_URL || 'amqp://localhost'
+});
 
 const server = new Server({
-    transport,
-    transportConfig
+    transport
 });
 
 const handler = new Handler({
-    transport,
-    transportConfig
+    transport
 });
 
 const publisher = new Publisher({
-    transport,
-    transportConfig
+    transport
 });
 ```
 
@@ -48,9 +45,13 @@ Messages can be published to a [work queue](https://www.rabbitmq.com/tutorials/t
 
 ```typescript
 import { Publisher } from '@financialforcedev/orizuru';
-import * as transport from '@financialforcedev/orizuru-transport-rabbitmq';
+import { Transport } from '@financialforcedev/orizuru-transport-rabbitmq';
 
-const app = new Publisher({ transport, transportConfig });
+const transport = new Transport({
+    url:  process.env.CLOUDAMQP_URL || 'amqp://localhost'
+});
+
+const app = new Publisher({ transport });
 
 app.publish({
     message: {
@@ -69,12 +70,16 @@ and consumed by the handler.
 
 ```typescript
 import { Handler, IOrizuruMessage } from '@financialforcedev/orizuru';
-import * as transport from '@financialforcedev/orizuru-transport-rabbitmq';
+import { Transport } from '@financialforcedev/orizuru-transport-rabbitmq';
 
-const app = new Handler({ transport, transportConfig });
+const transport = new Transport({
+    url:  process.env.CLOUDAMQP_URL || 'amqp://localhost'
+});
+
+const app = new Handler({ transport });
 
 app.handle({
-    handler: ({ context, message }: IOrizuruMessage) => {
+    handler: ({ context, message }: IOrizuruMessage<any, any>) => {
         app.info(context);
         app.info(message);
     }),
@@ -97,9 +102,13 @@ Or via a topic exchange using the [publish/subscribe](https://www.rabbitmq.com/t
 
 ```typescript
 import { Handler, IOrizuruMessage, Publisher } from '@financialforcedev/orizuru';
-import * as transport from '@financialforcedev/orizuru-transport-rabbitmq';
+import { Transport } from '@financialforcedev/orizuru-transport-rabbitmq';
 
-const publisher = new Publisher({ transport, transportConfig });
+const publisherTransport = new Transport({
+    url:  process.env.CLOUDAMQP_URL || 'amqp://localhost'
+});
+
+const publisher = new Publisher({ transport: publisherTransport });
 
 publisher.publish({
     message: {
@@ -116,10 +125,14 @@ publisher.publish({
     }
 });
 
-const app = new Handler({ transport, transportConfig });
+const handlerTransport = new Transport({
+    url:  process.env.CLOUDAMQP_URL || 'amqp://localhost'
+});
+
+const app = new Handler({ transport: handlerTransport});
 
 app.handle({
-    handler: ({ context, message }: IOrizuruMessage) => {
+    handler: ({ context, message }: IOrizuruMessage<any, any>) => {
         app.info(context);
         app.info(message);
     }),
