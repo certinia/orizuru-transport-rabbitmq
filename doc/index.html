@@ -75,32 +75,33 @@
 <span class="hljs-keyword">import</span> { Handler, Publisher, Server } <span class="hljs-keyword">from</span> <span class="hljs-string">'@financialforcedev/orizuru'</span>;
 
 <span class="hljs-comment">// get the transport</span>
-<span class="hljs-keyword">import</span> * <span class="hljs-keyword">as</span> transport <span class="hljs-keyword">from</span> <span class="hljs-string">'@financialforcedev/orizuru-transport-rabbitmq'</span>;
+<span class="hljs-keyword">import</span> { Transport } <span class="hljs-keyword">from</span> <span class="hljs-string">'@financialforcedev/orizuru-transport-rabbitmq'</span>;
 
-<span class="hljs-comment">// configure the transport</span>
-<span class="hljs-keyword">const</span> transportConfig = {
-    cloudamqpUrl:  process.env.CLOUDAMQP_URL || <span class="hljs-string">'amqp://localhost'</span>
-};
+<span class="hljs-comment">// create the transport</span>
+<span class="hljs-keyword">const</span> transport = <span class="hljs-keyword">new</span> Transport({
+    url:  process.env.CLOUDAMQP_URL || <span class="hljs-string">'amqp://localhost'</span>
+});
 
 <span class="hljs-keyword">const</span> server = <span class="hljs-keyword">new</span> Server({
-    transport,
-    transportConfig
+    transport
 });
 
 <span class="hljs-keyword">const</span> handler = <span class="hljs-keyword">new</span> Handler({
-    transport,
-    transportConfig
+    transport
 });
 
 <span class="hljs-keyword">const</span> publisher = <span class="hljs-keyword">new</span> Publisher({
-    transport,
-    transportConfig
+    transport
 });</code></pre>
 				<p>Messages can be published to a <a href="https://www.rabbitmq.com/tutorials/tutorial-two-java.html">work queue</a> using the publisher...</p>
 				<pre><code class="language-typescript"><span class="hljs-keyword">import</span> { Publisher } <span class="hljs-keyword">from</span> <span class="hljs-string">'@financialforcedev/orizuru'</span>;
-<span class="hljs-keyword">import</span> * <span class="hljs-keyword">as</span> transport <span class="hljs-keyword">from</span> <span class="hljs-string">'@financialforcedev/orizuru-transport-rabbitmq'</span>;
+<span class="hljs-keyword">import</span> { Transport } <span class="hljs-keyword">from</span> <span class="hljs-string">'@financialforcedev/orizuru-transport-rabbitmq'</span>;
 
-<span class="hljs-keyword">const</span> app = <span class="hljs-keyword">new</span> Publisher({ transport, transportConfig });
+<span class="hljs-keyword">const</span> transport = <span class="hljs-keyword">new</span> Transport({
+    url:  process.env.CLOUDAMQP_URL || <span class="hljs-string">'amqp://localhost'</span>
+});
+
+<span class="hljs-keyword">const</span> app = <span class="hljs-keyword">new</span> Publisher({ transport });
 
 app.publish({
     message: {
@@ -115,12 +116,16 @@ app.publish({
 });</code></pre>
 				<p>and consumed by the handler.</p>
 				<pre><code class="language-typescript"><span class="hljs-keyword">import</span> { Handler, IOrizuruMessage } <span class="hljs-keyword">from</span> <span class="hljs-string">'@financialforcedev/orizuru'</span>;
-<span class="hljs-keyword">import</span> * <span class="hljs-keyword">as</span> transport <span class="hljs-keyword">from</span> <span class="hljs-string">'@financialforcedev/orizuru-transport-rabbitmq'</span>;
+<span class="hljs-keyword">import</span> { Transport } <span class="hljs-keyword">from</span> <span class="hljs-string">'@financialforcedev/orizuru-transport-rabbitmq'</span>;
 
-<span class="hljs-keyword">const</span> app = <span class="hljs-keyword">new</span> Handler({ transport, transportConfig });
+<span class="hljs-keyword">const</span> transport = <span class="hljs-keyword">new</span> Transport({
+    url:  process.env.CLOUDAMQP_URL || <span class="hljs-string">'amqp://localhost'</span>
+});
+
+<span class="hljs-keyword">const</span> app = <span class="hljs-keyword">new</span> Handler({ transport });
 
 app.handle({
-    handler: <span class="hljs-function">(<span class="hljs-params">{ context, message }: IOrizuruMessage</span>) =&gt;</span> {
+    handler: <span class="hljs-function">(<span class="hljs-params">{ context, message }: IOrizuruMessage&lt;<span class="hljs-built_in">any</span>, <span class="hljs-built_in">any</span>&gt;</span>) =&gt;</span> {
         app.info(context);
         app.info(message);
     }),
@@ -139,9 +144,13 @@ app.handle({
 });</code></pre>
 				<p>Or via a topic exchange using the <a href="https://www.rabbitmq.com/tutorials/tutorial-three-javascript.html">publish/subscribe</a> mechanism.</p>
 				<pre><code class="language-typescript"><span class="hljs-keyword">import</span> { Handler, IOrizuruMessage, Publisher } <span class="hljs-keyword">from</span> <span class="hljs-string">'@financialforcedev/orizuru'</span>;
-<span class="hljs-keyword">import</span> * <span class="hljs-keyword">as</span> transport <span class="hljs-keyword">from</span> <span class="hljs-string">'@financialforcedev/orizuru-transport-rabbitmq'</span>;
+<span class="hljs-keyword">import</span> { Transport } <span class="hljs-keyword">from</span> <span class="hljs-string">'@financialforcedev/orizuru-transport-rabbitmq'</span>;
 
-<span class="hljs-keyword">const</span> publisher = <span class="hljs-keyword">new</span> Publisher({ transport, transportConfig });
+<span class="hljs-keyword">const</span> publisherTransport = <span class="hljs-keyword">new</span> Transport({
+    url:  process.env.CLOUDAMQP_URL || <span class="hljs-string">'amqp://localhost'</span>
+});
+
+<span class="hljs-keyword">const</span> publisher = <span class="hljs-keyword">new</span> Publisher({ transport: publisherTransport });
 
 publisher.publish({
     message: {
@@ -158,10 +167,14 @@ publisher.publish({
     }
 });
 
-<span class="hljs-keyword">const</span> app = <span class="hljs-keyword">new</span> Handler({ transport, transportConfig });
+<span class="hljs-keyword">const</span> handlerTransport = <span class="hljs-keyword">new</span> Transport({
+    url:  process.env.CLOUDAMQP_URL || <span class="hljs-string">'amqp://localhost'</span>
+});
+
+<span class="hljs-keyword">const</span> app = <span class="hljs-keyword">new</span> Handler({ transport: handlerTransport});
 
 app.handle({
-    handler: <span class="hljs-function">(<span class="hljs-params">{ context, message }: IOrizuruMessage</span>) =&gt;</span> {
+    handler: <span class="hljs-function">(<span class="hljs-params">{ context, message }: IOrizuruMessage&lt;<span class="hljs-built_in">any</span>, <span class="hljs-built_in">any</span>&gt;</span>) =&gt;</span> {
         app.info(context);
         app.info(message);
     }),
@@ -212,26 +225,14 @@ app.handle({
 					<li class=" tsd-kind-class tsd-is-private">
 						<a href="classes/subscriber.html" class="tsd-kind-icon">Subscriber</a>
 					</li>
-					<li class=" tsd-kind-variable tsd-is-not-exported">
-						<a href="globals.html#connection" class="tsd-kind-icon">connection</a>
+					<li class=" tsd-kind-class">
+						<a href="classes/transport.html" class="tsd-kind-icon">Transport</a>
 					</li>
-					<li class=" tsd-kind-variable tsd-is-not-exported">
-						<a href="globals.html#publishchannel" class="tsd-kind-icon">publish<wbr>Channel</a>
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/options.html" class="tsd-kind-icon">Options</a>
 					</li>
-					<li class=" tsd-kind-variable tsd-is-not-exported">
-						<a href="globals.html#subscribechannel" class="tsd-kind-icon">subscribe<wbr>Channel</a>
-					</li>
-					<li class=" tsd-kind-function">
-						<a href="globals.html#close" class="tsd-kind-icon">close</a>
-					</li>
-					<li class=" tsd-kind-function">
-						<a href="globals.html#connect" class="tsd-kind-icon">connect</a>
-					</li>
-					<li class=" tsd-kind-function">
-						<a href="globals.html#publish" class="tsd-kind-icon">publish</a>
-					</li>
-					<li class=" tsd-kind-function">
-						<a href="globals.html#subscribe" class="tsd-kind-icon">subscribe</a>
+					<li class=" tsd-kind-type-alias">
+						<a href="globals.html#exchangetype" class="tsd-kind-icon">Exchange<wbr>Type</a>
 					</li>
 					<li class=" tsd-kind-function tsd-is-private">
 						<a href="globals.html#validate" class="tsd-kind-icon">validate</a>
