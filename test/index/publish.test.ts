@@ -58,7 +58,7 @@ describe('index/publish', () => {
 		it('should throw an error if the publisher has not been initialised', async () => {
 
 			// Given
-			const buffer = new Buffer('test');
+			const buffer = Buffer.from('test');
 
 			const publish = new Publisher(channel);
 
@@ -75,7 +75,7 @@ describe('index/publish', () => {
 		it('should publish to a queue', async () => {
 
 			// Given
-			const buffer = new Buffer('test');
+			const buffer = Buffer.from('test');
 
 			const options = {
 				eventName: 'test'
@@ -97,7 +97,7 @@ describe('index/publish', () => {
 		it('should publish to a fanout exchange', async () => {
 
 			// Given
-			const buffer = new Buffer('test');
+			const buffer = Buffer.from('test');
 
 			const options: Orizuru.Transport.IPublish = {
 				eventName: 'test',
@@ -125,7 +125,7 @@ describe('index/publish', () => {
 		it('should publish to a topic exchange', async () => {
 
 			// Given
-			const buffer = new Buffer('test');
+			const buffer = Buffer.from('test');
 
 			const options: Orizuru.Transport.IPublish = {
 				eventName: 'test',
@@ -154,7 +154,7 @@ describe('index/publish', () => {
 		it('should publish to a topic exchange using the keyFunction', async () => {
 
 			// Given
-			const buffer = new Buffer('test');
+			const buffer = Buffer.from('test');
 
 			const options: Orizuru.Transport.IPublish = {
 				eventName: 'test',

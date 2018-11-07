@@ -214,7 +214,7 @@ describe('index', () => {
 		it('should throw an error if the transport has not been initialised', () => {
 
 			// Given
-			const buffer = new Buffer('test');
+			const buffer = Buffer.from('test');
 
 			// When
 			expect(transport.publish(buffer, {})).to.be.rejectedWith('Transport has not been initialised.');
@@ -224,7 +224,7 @@ describe('index', () => {
 		it('should publish the message buffer', async () => {
 
 			// Given
-			const buffer = new Buffer('test');
+			const buffer = Buffer.from('test');
 
 			sinon.stub(Publisher.prototype, 'init');
 			sinon.stub(Publisher.prototype, 'publish');
