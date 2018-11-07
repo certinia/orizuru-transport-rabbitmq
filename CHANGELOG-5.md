@@ -1,5 +1,11 @@
 # @financialforcedev/orizuru-transport-rabbitmq
 
+## 5.0.1
+
+- Update all dependencies to latest versions
+- Remove all references to `new Buffer()`
+	- Use `Buffer.from()` instead to remove deprecation warnings
+
 ## 5.0.0
 
 - Update Orizuru to use a class for the transport layer.
