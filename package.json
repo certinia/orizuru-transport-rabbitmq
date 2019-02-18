@@ -2,8 +2,12 @@
 	"name": "@financialforcedev/orizuru-transport-rabbitmq",
 	"version": "5.0.1",
 	"description": "Rabbitmq transport layer for the orizuru package",
-	"main": "dist/index.js",
-	"types": "dist/index.d.ts",
+	"main": "dist/src/index.js",
+	"types": "dist/types/src/index.d.ts",
+	"files": [
+		"dist/src",
+		"dist/types/src"
+	],
 	"scripts": {
 		"build": "npm run build-clean && npm run build-compile",
 		"build-clean": "rm -rf dist",
