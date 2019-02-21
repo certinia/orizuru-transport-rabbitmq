@@ -2,12 +2,17 @@
 	"name": "@financialforcedev/orizuru-transport-rabbitmq",
 	"version": "5.0.1",
 	"description": "Rabbitmq transport layer for the orizuru package",
-	"main": "dist/index.js",
-	"types": "dist/index.d.ts",
+	"main": "dist/src/index.js",
+	"types": "dist/types/src/index.d.ts",
+	"files": [
+		"dist/src",
+		"dist/types/src"
+	],
 	"scripts": {
-		"build": "tsc",
+		"build": "npm run build-clean && npm run build-compile",
+		"build-clean": "rm -rf dist",
+		"build-compile": "tsc",
 		"doc": "typedoc --gitRevision master --ignoreCompilerErrors --out doc --mode file",
-		"init-project": "cp run.properties local.run.properties && cp test.properties local.test.properties",
 		"prepare": "npm run build",
 		"pretest": "tslint -p tsconfig.json",
 		"test": "nyc --nycrc-path=test/nyc.opts mocha"
@@ -28,27 +33,27 @@
 	"author": "financialforce",
 	"license": "BSD-3-Clause",
 	"dependencies": {
-		"@types/amqplib": "0.5.8",
-		"@types/lodash": "^4.14.118",
-		"@types/node": "^10.12.2",
-		"amqplib": "^0.5.2",
+		"@types/amqplib": "^0.5.10",
+		"@types/lodash": "^4.14.121",
+		"@types/node": "^10.12.26",
+		"amqplib": "^0.5.3",
 		"lodash": "^4.17.11"
 	},
 	"devDependencies": {
 		"@types/chai": "^4.1.7",
 		"@types/chai-as-promised": "^7.1.0",
-		"@types/mocha": "^5.2.5",
-		"@types/sinon": "^5.0.5",
-		"@types/sinon-chai": "^3.2.0",
+		"@types/mocha": "^5.2.6",
+		"@types/sinon": "^7.0.6",
+		"@types/sinon-chai": "^3.2.2",
 		"chai": "^4.2.0",
 		"chai-as-promised": "^7.1.1",
 		"mocha": "^5.2.0",
-		"nyc": "^13.1.0",
-		"sinon": "^7.1.1",
-		"sinon-chai": "^3.2.0",
-		"ts-node": "^7.0.1",
-		"tslint": "^5.11.0",
-		"typedoc": "^0.13.0",
-		"typescript": "^3.1.6"
+		"nyc": "^13.3.0",
+		"sinon": "^7.2.3",
+		"sinon-chai": "^3.3.0",
+		"ts-node": "^8.0.2",
+		"tslint": "^5.12.1",
+		"typedoc": "^0.14.2",
+		"typescript": "^3.3.3"
 	}
 }
