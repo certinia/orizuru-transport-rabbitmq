@@ -15,7 +15,7 @@
 		"doc": "typedoc --gitRevision master --ignoreCompilerErrors --out doc --mode file",
 		"prepare": "npm run build",
 		"pretest": "tslint -p tsconfig.json",
-		"test": "nyc --nycrc-path=test/.nyc.json mocha"
+		"test": "nyc --nycrc-path=test/.nyc.json mocha --config test/.mocha.json"
 	},
 	"repository": {
 		"type": "git",
