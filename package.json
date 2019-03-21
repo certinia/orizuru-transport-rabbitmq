@@ -12,10 +12,13 @@
 		"build": "npm run build-clean && npm run build-compile",
 		"build-clean": "rm -rf dist",
 		"build-compile": "tsc",
+		"clean": "rm -rf coverage* && rm -rf dist && rm -rf node_modules && rm -f *.tgz",
+		"coverage-unit": "jest --config test/.jest.json",
 		"doc": "typedoc --gitRevision master --ignoreCompilerErrors --out doc --mode file",
 		"prepare": "npm run build",
 		"pretest": "tslint -p tsconfig.json",
-		"test": "nyc --nycrc-path=test/.nyc.json mocha --config test/.mocha.json"
+		"test": "npm run coverage-unit",
+		"test-unit": "jest --config test/.jest.json --coverage=false"
 	},
 	"repository": {
 		"type": "git",
@@ -33,27 +36,26 @@
 	"author": "financialforce",
 	"license": "BSD-3-Clause",
 	"dependencies": {
-		"@types/amqplib": "^0.5.10",
-		"@types/lodash": "^4.14.121",
-		"@types/node": "^10.12.26",
+		"@types/amqplib": "^0.5.11",
+		"@types/lodash": "^4.14.123",
+		"@types/node": "^10.14.1",
 		"amqplib": "^0.5.3",
 		"lodash": "^4.17.11"
 	},
 	"devDependencies": {
 		"@types/chai": "^4.1.7",
 		"@types/chai-as-promised": "^7.1.0",
-		"@types/mocha": "^5.2.6",
-		"@types/sinon": "^7.0.6",
+		"@types/jest": "^24.0.11",
+		"@types/sinon": "^7.0.10",
 		"@types/sinon-chai": "^3.2.2",
 		"chai": "^4.2.0",
 		"chai-as-promised": "^7.1.1",
-		"mocha": "^6.0.0",
-		"nyc": "^13.3.0",
-		"sinon": "^7.2.4",
+		"jest": "^24.5.0",
+		"sinon": "^7.3.0",
 		"sinon-chai": "^3.3.0",
-		"ts-node": "^8.0.2",
-		"tslint": "^5.12.1",
+		"ts-jest": "^24.0.0",
+		"tslint": "^5.14.0",
 		"typedoc": "^0.14.2",
-		"typescript": "^3.3.3"
+		"typescript": "^3.3.4000"
 	}
 }
