@@ -1,4 +1,4 @@
-# Orizuru Transport RabbitMQ.
+# Orizuru Transport RabbitMQ
 
 [![Build Status](https://travis-ci.org/financialforcedev/orizuru-transport-rabbitmq.svg?branch=master)](https://travis-ci.org/financialforcedev/orizuru-transport-rabbitmq)
 
