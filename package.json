@@ -1,6 +1,6 @@
 {
 	"name": "@financialforcedev/orizuru-transport-rabbitmq",
-	"version": "5.0.1",
+	"version": "5.1.0",
 	"description": "Rabbitmq transport layer for the orizuru package",
 	"main": "dist/src/index.js",
 	"types": "dist/types/src/index.d.ts",
