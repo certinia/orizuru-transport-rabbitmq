@@ -95,6 +95,16 @@ export class Transport {
 	}
 
 	/**
+	 * Closes the channel.
+	 */
+	public async closeChannel() {
+		if (this.publishChannel) {
+			console.warn('DEBUG**** Closing channel ');
+			await this.publishChannel.close();
+		}
+	}
+
+	/**
 	 * Connects to AMQP and creates a publish and subscribe channel.
 	 */
 	public async connect() {
