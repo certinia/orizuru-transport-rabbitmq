@@ -99,7 +99,6 @@ export class Transport {
 	 */
 	public async closeChannel() {
 		if (this.publishChannel) {
-			console.warn('DEBUG**** Closing channel ');
 			await this.publishChannel.close();
 		}
 	}
