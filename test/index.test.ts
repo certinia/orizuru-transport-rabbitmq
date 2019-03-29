@@ -138,10 +138,6 @@ describe('index', () => {
 
 		});
 
-	});
-
-	describe('closeChannel', () => {
-
 		it('should close the channel if connect with flush set to true', async () => {
 
 			// Given
