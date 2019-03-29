@@ -163,7 +163,7 @@ describe('index', () => {
 			expect(amqp.connect).to.have.been.calledWithExactly('amqp://localhost');
 			expect(connection.createChannel).to.have.been.calledTwice;
 			expect(channel.prefetch).to.not.have.been.called;
-			expect(channel.close).to.have.been.calledOnce;
+			expect(channel.close).to.have.been.calledTwice;
 			expect(connection.close).to.have.been.calledOnce;
 
 		});

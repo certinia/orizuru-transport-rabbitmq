@@ -93,6 +93,10 @@ export class Transport {
 			await this.publishChannel.close();
 		}
 
+		if (flush && this.subscribeChannel) {
+			await this.subscribeChannel.close();
+		}
+
 		if (this.connection) {
 			await this.connection.close();
 		}
