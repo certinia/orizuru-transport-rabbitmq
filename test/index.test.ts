@@ -52,6 +52,7 @@ describe('index', () => {
 	beforeEach(() => {
 
 		channel = {
+			close: sinon.stub(),
 			prefetch: sinon.stub()
 		};
 
@@ -96,7 +97,7 @@ describe('index', () => {
 
 	describe('close', () => {
 
-		it('should close the connection if connect has been called', async () => {
+		it('should close the connection and channels if connect has been called', async () => {
 
 			// Given
 			transport = new Transport({
@@ -114,7 +115,28 @@ describe('index', () => {
 			expect(amqp.connect).to.have.been.calledWithExactly('amqp://localhost');
 			expect(connection.createChannel).to.have.been.calledTwice;
 			expect(channel.prefetch).to.not.have.been.called;
+			expect(channel.close).to.have.been.calledTwice;
 			expect(connection.close).to.have.been.calledOnce;
+
+		});
+
+		it('should ignore closing the connection and channels if connect has not been called', async () => {
+
+			// Given
+			transport = new Transport({
+				url: 'amqp://localhost'
+			});
+
+			// When
+			await transport.close();
+
+			// Then
+			expect(optionsValidator.validate).to.have.been.calledOnce;
+			expect(amqp.connect).to.not.have.been.called;
+			expect(connection.createChannel).to.not.have.been.called;
+			expect(channel.prefetch).to.not.have.been.called;
+			expect(channel.close).to.have.not.been.called;
+			expect(connection.close).to.not.have.been.called;
 
 		});
 
@@ -133,6 +155,7 @@ describe('index', () => {
 			expect(amqp.connect).to.not.have.been.called;
 			expect(connection.createChannel).to.not.have.been.called;
 			expect(channel.prefetch).to.not.have.been.called;
+			expect(channel.close).to.not.have.been.called;
 			expect(connection.close).to.not.have.been.called;
 
 		});

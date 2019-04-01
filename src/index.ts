@@ -89,6 +89,14 @@ export class Transport {
 	 * Closes the connection.
 	 */
 	public async close() {
+		if (this.publishChannel) {
+			await this.publishChannel.close();
+		}
+
+		if (this.subscribeChannel) {
+			await this.subscribeChannel.close();
+		}
+
 		if (this.connection) {
 			await this.connection.close();
 		}
