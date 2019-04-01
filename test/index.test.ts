@@ -151,7 +151,7 @@ describe('index', () => {
 			await transport.connect({ url: 'testUrl' });
 
 			// When
-			await transport.close(true);
+			await transport.close({ flush: true });
 
 			// Then
 			expect(optionsValidator.validate).to.have.been.calledOnce;
