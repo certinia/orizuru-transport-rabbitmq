@@ -28,7 +28,7 @@ import { Options } from '../../src/index';
 
 import { forceSecure } from '../../src/index/secure';
 
-describe('index/validator/amqpconfig', () => {
+describe('index/secure', () => {
 
 	it('should fail if the url has the wrong protocol', () => {
 
