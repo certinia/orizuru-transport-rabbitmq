@@ -204,6 +204,25 @@ describe('index', () => {
 
 		});
 
+		it('should use amqps with forceSecure set', async () => {
+
+			// Given
+			transport = new Transport({
+				forceSecure: true,
+				url: 'amqp://localhost'
+			});
+
+			// When
+			await transport.connect();
+
+			// Then
+			expect(optionsValidator.validate).to.have.been.calledOnce;
+			expect(amqp.connect).to.have.been.calledOnce;
+			expect(amqp.connect).to.have.been.calledWithExactly('amqps://localhost');
+			expect(connection.createChannel).to.have.been.calledTwice;
+
+		});
+
 		it('should only create the connection and channels once', async () => {
 
 			// Given
