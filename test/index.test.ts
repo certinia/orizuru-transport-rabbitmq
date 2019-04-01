@@ -97,7 +97,7 @@ describe('index', () => {
 
 	describe('close', () => {
 
-		it('should close the connection if connect has been called', async () => {
+		it('should close the connection and channels if connect has been called', async () => {
 
 			// Given
 			transport = new Transport({
@@ -115,11 +115,12 @@ describe('index', () => {
 			expect(amqp.connect).to.have.been.calledWithExactly('amqp://localhost');
 			expect(connection.createChannel).to.have.been.calledTwice;
 			expect(channel.prefetch).to.not.have.been.called;
+			expect(channel.close).to.have.been.calledTwice;
 			expect(connection.close).to.have.been.calledOnce;
 
 		});
 
-		it('should ignore closing the connection if connect has not been called', async () => {
+		it('should ignore closing the connection and channels if connect has not been called', async () => {
 
 			// Given
 			transport = new Transport({
@@ -134,59 +135,8 @@ describe('index', () => {
 			expect(amqp.connect).to.not.have.been.called;
 			expect(connection.createChannel).to.not.have.been.called;
 			expect(channel.prefetch).to.not.have.been.called;
-			expect(connection.close).to.not.have.been.called;
-
-		});
-
-		it('should close the channel if connect with flush set to true', async () => {
-
-			// Given
-			transport = new Transport({
-				url: 'amqp://localhost'
-			});
-
-			sinon.stub(Publisher.prototype, 'init');
-			sinon.stub(Publisher.prototype, 'publish');
-
-			await transport.connect({ url: 'testUrl' });
-
-			// When
-			await transport.close({ flush: true });
-
-			// Then
-			expect(optionsValidator.validate).to.have.been.calledOnce;
-			expect(amqp.connect).to.have.been.calledOnce;
-			expect(amqp.connect).to.have.been.calledWithExactly('amqp://localhost');
-			expect(connection.createChannel).to.have.been.calledTwice;
-			expect(channel.prefetch).to.not.have.been.called;
-			expect(channel.close).to.have.been.calledTwice;
-			expect(connection.close).to.have.been.calledOnce;
-
-		});
-
-		it('should not close the channel if connect without flush set', async () => {
-
-			// Given
-			transport = new Transport({
-				url: 'amqp://localhost'
-			});
-
-			sinon.stub(Publisher.prototype, 'init');
-			sinon.stub(Publisher.prototype, 'publish');
-
-			await transport.connect({ url: 'testUrl' });
-
-			// When
-			await transport.close();
-
-			// Then
-			expect(optionsValidator.validate).to.have.been.calledOnce;
-			expect(amqp.connect).to.have.been.calledOnce;
-			expect(amqp.connect).to.have.been.calledWithExactly('amqp://localhost');
-			expect(connection.createChannel).to.have.been.calledTwice;
-			expect(channel.prefetch).to.not.have.been.called;
 			expect(channel.close).to.have.not.been.calledOnce;
-			expect(connection.close).to.have.been.calledOnce;
+			expect(connection.close).to.not.have.been.called;
 
 		});
 

@@ -88,12 +88,12 @@ export class Transport {
 	/**
 	 * Closes the connection.
 	 */
-	public async close(options: { flush?: boolean } = { flush: false }) {
-		if (options.flush && this.publishChannel) {
+	public async close() {
+		if (this.publishChannel) {
 			await this.publishChannel.close();
 		}
 
-		if (options.flush && this.subscribeChannel) {
+		if (this.subscribeChannel) {
 			await this.subscribeChannel.close();
 		}
 
