@@ -155,7 +155,7 @@ describe('index', () => {
 			expect(amqp.connect).to.not.have.been.called;
 			expect(connection.createChannel).to.not.have.been.called;
 			expect(channel.prefetch).to.not.have.been.called;
-			expect(channel.close).to.not.have.been;
+			expect(channel.close).to.not.have.been.called;
 			expect(connection.close).to.not.have.been.called;
 
 		});
