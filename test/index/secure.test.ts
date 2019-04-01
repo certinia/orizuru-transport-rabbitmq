@@ -50,6 +50,7 @@ describe('index/validator/amqpconfig', () => {
 		// Given
 
 		const options = {
+			prefetch: 20,
 			url: 'amqp://user:pass@host:10000/vhost'
 		} as Options;
 
@@ -60,6 +61,7 @@ describe('index/validator/amqpconfig', () => {
 		// Then
 
 		expect(validatedOptions.url).toEqual('amqps://user:pass@host:10000/vhost');
+		expect(validatedOptions.prefetch).toEqual(20);
 
 	});
 
@@ -68,6 +70,7 @@ describe('index/validator/amqpconfig', () => {
 		// Given
 
 		const options = {
+			prefetch: 20,
 			url: 'amqps://user:pass@host:10000/vhost'
 		} as Options;
 
@@ -78,6 +81,7 @@ describe('index/validator/amqpconfig', () => {
 		// Then
 
 		expect(validatedOptions.url).toEqual('amqps://user:pass@host:10000/vhost');
+		expect(validatedOptions.prefetch).toEqual(20);
 
 	});
 
