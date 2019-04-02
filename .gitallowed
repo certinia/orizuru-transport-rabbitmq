@@ -1,0 +1,2 @@
+http:\/\/localhost:8080\/test
+amqp:\/\/user:pass@host:10000\/vhost

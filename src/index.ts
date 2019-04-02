@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2017-2018 FinancialForce.com, inc
+ * Copyright (c) 2017-2019 FinancialForce.com, inc
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -28,6 +28,7 @@ import { Channel, connect as amqpConnect, Connection } from 'amqplib';
 
 import { validate } from './index/optionsValidator';
 import { Publisher } from './index/publish';
+import { forceSecure } from './index/secure';
 import { Subscriber } from './index/subscribe';
 
 export type ExchangeType = 'fanout' | 'topic';
@@ -70,6 +71,7 @@ declare global {
 export interface Options {
 	prefetch?: number;
 	url: string;
+	forceSecure?: boolean;
 }
 
 export class Transport {
@@ -81,8 +83,10 @@ export class Transport {
 	private subscribeChannel?: Channel;
 
 	constructor(options: Options) {
-		this.options = options;
 		validate(options);
+		this.options = options.forceSecure
+			? forceSecure(options)
+			: options;
 	}
 
 	/**

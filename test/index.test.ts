@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018 FinancialForce.com, inc
+ * Copyright (c) 2018-2019 FinancialForce.com, inc
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -201,6 +201,25 @@ describe('index', () => {
 			expect(connection.createChannel).to.have.been.calledTwice;
 			expect(channel.prefetch).to.have.been.calledOnce;
 			expect(channel.prefetch).to.have.been.calledWithExactly(2);
+
+		});
+
+		it('should use amqps with forceSecure set', async () => {
+
+			// Given
+			transport = new Transport({
+				forceSecure: true,
+				url: 'amqp://localhost'
+			});
+
+			// When
+			await transport.connect();
+
+			// Then
+			expect(optionsValidator.validate).to.have.been.calledOnce;
+			expect(amqp.connect).to.have.been.calledOnce;
+			expect(amqp.connect).to.have.been.calledWithExactly('amqps://localhost');
+			expect(connection.createChannel).to.have.been.calledTwice;
 
 		});
 
