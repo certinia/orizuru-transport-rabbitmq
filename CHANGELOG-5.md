@@ -1,5 +1,15 @@
 # @financialforcedev/orizuru-transport-rabbitmq
 
+## 5.2.0
+
+### NEW FEATURES
+
+- Added forceSecure to the configuration options, this will force the protocol of the connection URL to be amqps.
+
+### FIXES
+
+- Make `Transport.close()` flush its message channels before closing the connection.
+
 ## 5.1.0
 
 ### NEW FEATURES
@@ -29,3 +39,4 @@
 
 ### OTHER CHANGES
 - Add nyc.opts file to clean up the package.json
+
