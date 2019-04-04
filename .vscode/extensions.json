@@ -1,6 +1,7 @@
 {
 	"recommendations": [
 		"alexdima.vscode-lcov",
-		"ms-vscode.vscode-typescript-tslint-plugin"
+		"ms-vscode.vscode-typescript-tslint-plugin",
+		"PeterJausovec.vscode-docker"
 	]
 }
