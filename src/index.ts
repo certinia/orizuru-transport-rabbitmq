@@ -24,6 +24,9 @@
  *  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+import { NetConnectOpts } from 'net';
+import { ConnectionOptions } from 'tls';
+
 import { Channel, connect as amqpConnect, Connection } from 'amqplib';
 
 import { validate } from './index/optionsValidator';
@@ -72,6 +75,7 @@ export interface Options {
 	prefetch?: number;
 	url: string;
 	forceSecure?: boolean;
+	socketOptions?: Partial<NetConnectOpts & ConnectionOptions>;
 }
 
 export class Transport {
@@ -113,7 +117,7 @@ export class Transport {
 
 		// Create a single connection
 		if (!this.connection) {
-			this.connection = await amqpConnect(this.options.url);
+			this.connection = await amqpConnect(this.options.url, this.options.socketOptions);
 		}
 
 		// Create a single publish channel
