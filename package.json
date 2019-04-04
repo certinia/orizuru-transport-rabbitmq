@@ -5,13 +5,17 @@
 	"main": "dist/src/index.js",
 	"types": "dist/types/src/index.d.ts",
 	"files": [
+		"dist/docker",
 		"dist/src",
 		"dist/types/src"
 	],
 	"scripts": {
-		"build": "npm run build-clean && npm run build-compile",
+		"build": "npm run build-clean && npm run build-compile && npm run build-copy",
 		"build-clean": "rm -rf dist",
 		"build-compile": "tsc",
+		"build-copy": "mkdir -p dist/docker/setup && npm run build-copy-docker && npm run build-copy-docker-setup",
+		"build-copy-docker": "cp docker/rabbitmq.dockerfile dist/docker && cp docker/docker-compose.yaml dist/docker",
+		"build-copy-docker-setup": "cp docker/setup/*.conf dist/docker/setup",
 		"clean": "rm -rf coverage* && rm -rf dist && rm -rf node_modules && rm -f *.tgz",
 		"coverage-unit": "jest --config test/.jest.json",
 		"doc": "typedoc --gitRevision master --ignoreCompilerErrors --out doc --mode file",
