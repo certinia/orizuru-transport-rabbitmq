@@ -33,13 +33,13 @@ RUN apt-get update \
 
 # Make the certificates directory and add the server certificate generator file
 RUN mkdir certificates
-ADD ./setup/serverCertificateGenerator.txt certificates/serverCertificateGenerator.txt
+ADD ./setup/certificate.conf certificates/certificate.conf
 
 # Generate a CA key
 RUN openssl genrsa -out certificates/ca-key.pem 
 
-# Generate the CA - use the serverCertificateGenerator.txt
-RUN openssl req -new -x509 -days 365 -key certificates/ca-key.pem -out certificates/ca.pem -config certificates/serverCertificateGenerator.txt
+# Generate the CA - use the certificate.conf
+RUN openssl req -new -x509 -days 365 -key certificates/ca-key.pem -out certificates/ca.pem -config certificates/certificate.conf
 
 # Generate a key for the server certificate
 RUN openssl genrsa -out certificates/server-key.pem
