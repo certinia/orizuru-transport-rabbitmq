@@ -5,13 +5,16 @@
 	"main": "dist/src/index.js",
 	"types": "dist/types/src/index.d.ts",
 	"files": [
+		"dist/docker",
 		"dist/src",
 		"dist/types/src"
 	],
 	"scripts": {
-		"build": "npm run build-clean && npm run build-compile",
+		"build": "npm run build-clean && npm run build-compile && npm run build-copy",
 		"build-clean": "rm -rf dist",
 		"build-compile": "tsc",
+		"build-copy": "npm run build-copy-docker",
+		"build-copy-docker": "mkdir -p dist/docker/setup && cp docker/*.{dockerfile,yaml} dist/docker && cp docker/setup/*.{conf,txt} dist/docker/setup",
 		"clean": "rm -rf coverage* && rm -rf dist && rm -rf node_modules && rm -f *.tgz",
 		"coverage-unit": "jest --config test/.jest.json",
 		"doc": "typedoc --gitRevision master --ignoreCompilerErrors --out doc --mode file",
