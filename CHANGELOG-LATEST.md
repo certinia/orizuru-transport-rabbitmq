@@ -20,3 +20,5 @@
   - Start the `orizuru-transport-rabbitmq--rabbitmq` service
   - Cleanup the created container and image
   - Start the service then run the system tests
+
+- Amalgamate the change log files

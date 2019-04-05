@@ -4,11 +4,11 @@
 
 ### NEW FEATURES
 
-- Added forceSecure to the configuration options, this will force the protocol of the connection URL to be amqps.
+- Added forceSecure to the configuration options, this will force the protocol of the connection URL to be amqps
 
 ### FIXES
 
-- Make `Transport.close()` flush its message channels before closing the connection.
+- Make `Transport.close()` flush its message channels before closing the connection
 
 ## 5.1.0
 
@@ -44,3 +44,21 @@
 ### OTHER CHANGES
 
 - Add nyc.opts file to clean up the package.json
+
+## 4.0.0
+
+### OTHER CHANGES
+
+- Conversion to Typescript
+
+## 3.2.2
+
+- Dependency update for security advisories
+
+## 3.2.1
+
+- Bug fix release
+
+### BUGS FIXED
+
+- Channel leak from the publisher
