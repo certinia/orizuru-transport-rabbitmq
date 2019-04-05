@@ -40,12 +40,14 @@ function payloadMessage(expectedPayload: string, response: AxiosResponse) {
 
 describe('Suite 1 - Publishing messages with and without an SSL connection', () => {
 
+	const queueName = 'api.test';
+
 	let transport: Transport;
 
 	beforeAll(async () => {
 
 		try {
-			await axios.delete('http://guest:guest@localhost:15672/api/queues/%2F/api.test/contents');
+			await axios.delete(`http://guest:guest@localhost:15672/api/queues/%2F/${queueName}/contents`);
 		} catch {
 			// Ignore - this is included so that if a previous system test run has failed the data is cleaned up
 		}
@@ -67,11 +69,11 @@ describe('Suite 1 - Publishing messages with and without an SSL connection', () 
 
 		// When
 		await transport.publish(Buffer.from('test1'), {
-			eventName: 'api.test'
+			eventName: queueName
 		});
 
 		// Then
-		const response = await axios.post('http://guest:guest@localhost:15672/api/queues/%2F/api.test/get', {
+		const response = await axios.post(`http://guest:guest@localhost:15672/api/queues/%2F/${queueName}/get`, {
 			ackmode: 'ack_requeue_false',
 			count: '1',
 			encoding: 'auto',
@@ -101,11 +103,11 @@ describe('Suite 1 - Publishing messages with and without an SSL connection', () 
 
 		// When
 		await transport.publish(Buffer.from('test2'), {
-			eventName: 'api.test'
+			eventName: queueName
 		});
 
 		// Then
-		const response = await axios.post('http://guest:guest@localhost:15672/api/queues/%2F/api.test/get', {
+		const response = await axios.post(`http://guest:guest@localhost:15672/api/queues/%2F/${queueName}/get`, {
 			ackmode: 'ack_requeue_false',
 			count: '1',
 			encoding: 'auto',

@@ -36,10 +36,22 @@ describe('Suite 2 - Subscribing to messages with and without an SSL connection',
 
 	let transport: Transport;
 
+	const queueName = 'api.test';
+	const exchange1 = 'test.exchange1';
+	const exchange2 = 'test.exchange2';
+	const exchangeQueueName1 = 'exchange.api.test1';
+	const exchangeQueueName2 = 'exchange.api.test2';
+
 	beforeAll(async () => {
 
 		try {
-			await axios.delete('http://guest:guest@localhost:15672/api/queues/%2F/api.test/contents');
+
+			const purgeQueues = [queueName, exchangeQueueName1, exchangeQueueName2].map((currentQueueName) => {
+				return axios.delete(`http://guest:guest@localhost:15672/api/queues/%2F/${currentQueueName}/contents`);
+			});
+
+			await Promise.all(purgeQueues);
+
 		} catch {
 			// Ignore - this is included so that if a previous system test run has failed the data is cleaned up
 		}
@@ -75,11 +87,11 @@ describe('Suite 2 - Subscribing to messages with and without an SSL connection',
 			// Then
 			transport
 				.publish(Buffer.from('test1'), {
-					eventName: 'api.test'
+					eventName: queueName
 				})
 				.then(() => {
 					return transport.subscribe(handler, {
-						eventName: 'api.test'
+						eventName: queueName
 					});
 				});
 
@@ -98,17 +110,17 @@ describe('Suite 2 - Subscribing to messages with and without an SSL connection',
 			// Then
 			transport
 				.subscribe(handler, {
-					eventName: 'api.test2',
+					eventName: exchangeQueueName1,
 					exchange: {
-						name: 'test.exchange',
+						name: exchange1,
 						type: 'fanout'
 					}
 				})
 				.then(() => {
 					return transport.publish(Buffer.from('test2'), {
-						eventName: 'api.test2',
+						eventName: exchangeQueueName1,
 						exchange: {
-							name: 'test.exchange',
+							name: exchange1,
 							type: 'fanout'
 						}
 					});
@@ -147,11 +159,11 @@ describe('Suite 2 - Subscribing to messages with and without an SSL connection',
 			// Then
 			transport
 				.publish(Buffer.from('test3'), {
-					eventName: 'api.test'
+					eventName: queueName
 				})
 				.then(() => {
 					return transport.subscribe(handler, {
-						eventName: 'api.test'
+						eventName: queueName
 					});
 				});
 
@@ -170,17 +182,17 @@ describe('Suite 2 - Subscribing to messages with and without an SSL connection',
 			// Then
 			transport
 				.subscribe(handler, {
-					eventName: 'api.test4',
+					eventName: exchangeQueueName2,
 					exchange: {
-						name: 'test.exchange',
+						name: exchange2,
 						type: 'fanout'
 					}
 				})
 				.then(() => {
 					return transport.publish(Buffer.from('test4'), {
-						eventName: 'api.test4',
+						eventName: exchangeQueueName2,
 						exchange: {
-							name: 'test.exchange',
+							name: exchange2,
 							type: 'fanout'
 						}
 					});
