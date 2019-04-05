@@ -69,7 +69,8 @@
 				<p>Orizuru Transport RabbitMQ is a transport library for the <a href="https://www.npmjs.com/package/@financialforcedev/orizuru">Orizuru</a> framework.</p>
 				<p>It is a thin wrapper around <a href="https://www.npmjs.com/package/amqplib">amqplib</a> and allows Orizuru to publish and subscribe to events via <a href="http://www.rabbitmq.com/">RabbitMQ</a>.</p>
 				<h2 id="install">Install</h2>
-				<pre><code>$ <span class="hljs-built_in">npm</span> install @financialforcedev/orizuru-transport-rabbitmq</code></pre><h2 id="usage">Usage</h2>
+				<pre><code class="language-sh">npm install @financialforcedev/orizuru-transport-rabbitmq</code></pre>
+				<h2 id="usage">Usage</h2>
 				<p>Use this dependency to specify the transport layer that <code>@financialforcedev/orizuru</code> uses as RabbitMQ.</p>
 				<pre><code class="language-typescript"><span class="hljs-comment">// get classes from orizuru</span>
 <span class="hljs-keyword">import</span> { Handler, Publisher, Server } <span class="hljs-keyword">from</span> <span class="hljs-string">'@financialforcedev/orizuru'</span>;
@@ -196,6 +197,10 @@ app.handle({
         }
     }
 });</code></pre>
+				<h2 id="development">Development</h2>
+				<p>Before running <code>npm test</code>, make sure that Docker is installed.</p>
+				<pre><code class="language-sh">brew cask install docker</code></pre>
+				<p><code>npm test</code> is configured to build and start the <code>orizuru-transport-rabbitmq--rabbitmq</code> service, then run the system tests.</p>
 				<h2 id="api-docs">API Docs</h2>
 				<p>Click to view <a href="http://htmlpreview.github.io/?https://github.com/financialforcedev/orizuru-transport-rabbitmq/blob/master/doc/index.html">TSDoc API documentation</a>.</p>
 			</div>
