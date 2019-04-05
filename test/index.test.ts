@@ -112,7 +112,7 @@ describe('index', () => {
 			// Then
 			expect(optionsValidator.validate).to.have.been.calledOnce;
 			expect(amqp.connect).to.have.been.calledOnce;
-			expect(amqp.connect).to.have.been.calledWithExactly('amqp://localhost');
+			expect(amqp.connect).to.have.been.calledWithExactly('amqp://localhost', undefined);
 			expect(connection.createChannel).to.have.been.calledTwice;
 			expect(channel.prefetch).to.not.have.been.called;
 			expect(channel.close).to.have.been.calledTwice;
@@ -177,7 +177,7 @@ describe('index', () => {
 			// Then
 			expect(optionsValidator.validate).to.have.been.calledOnce;
 			expect(amqp.connect).to.have.been.calledOnce;
-			expect(amqp.connect).to.have.been.calledWithExactly('amqp://localhost');
+			expect(amqp.connect).to.have.been.calledWithExactly('amqp://localhost', undefined);
 			expect(connection.createChannel).to.have.been.calledTwice;
 			expect(channel.prefetch).to.not.have.been.called;
 
@@ -197,7 +197,7 @@ describe('index', () => {
 			// Then
 			expect(optionsValidator.validate).to.have.been.calledOnce;
 			expect(amqp.connect).to.have.been.calledOnce;
-			expect(amqp.connect).to.have.been.calledWithExactly('amqp://localhost');
+			expect(amqp.connect).to.have.been.calledWithExactly('amqp://localhost', undefined);
 			expect(connection.createChannel).to.have.been.calledTwice;
 			expect(channel.prefetch).to.have.been.calledOnce;
 			expect(channel.prefetch).to.have.been.calledWithExactly(2);
@@ -218,8 +218,59 @@ describe('index', () => {
 			// Then
 			expect(optionsValidator.validate).to.have.been.calledOnce;
 			expect(amqp.connect).to.have.been.calledOnce;
-			expect(amqp.connect).to.have.been.calledWithExactly('amqps://localhost');
+			expect(amqp.connect).to.have.been.calledWithExactly('amqps://localhost', undefined);
 			expect(connection.createChannel).to.have.been.calledTwice;
+
+		});
+
+		describe('should use the socketOptions', () => {
+
+			it('for a non-SSL connection', async () => {
+
+				// Given
+				transport = new Transport({
+					socketOptions: {
+						timeout: 4000
+					},
+					url: 'amqp://localhost'
+				});
+
+				await transport.connect();
+
+				// Then
+				expect(optionsValidator.validate).to.have.been.calledOnce;
+				expect(amqp.connect).to.have.been.calledOnce;
+				expect(amqp.connect).to.have.been.calledWithExactly('amqp://localhost', {
+					timeout: 4000
+				});
+				expect(connection.createChannel).to.have.been.calledTwice;
+
+			});
+
+			it('for an SSL connection', async () => {
+
+				// Given
+				transport = new Transport({
+					forceSecure: true,
+					socketOptions: {
+						rejectUnauthorized: true,
+						timeout: 4000
+					},
+					url: 'amqp://localhost'
+				});
+
+				await transport.connect();
+
+				// Then
+				expect(optionsValidator.validate).to.have.been.calledOnce;
+				expect(amqp.connect).to.have.been.calledOnce;
+				expect(amqp.connect).to.have.been.calledWithExactly('amqps://localhost', {
+					rejectUnauthorized: true,
+					timeout: 4000
+				});
+				expect(connection.createChannel).to.have.been.calledTwice;
+
+			});
 
 		});
 
@@ -237,7 +288,7 @@ describe('index', () => {
 			// Then
 			expect(optionsValidator.validate).to.have.been.calledOnce;
 			expect(amqp.connect).to.have.been.calledOnce;
-			expect(amqp.connect).to.have.been.calledWithExactly('amqp://localhost');
+			expect(amqp.connect).to.have.been.calledWithExactly('amqp://localhost', undefined);
 			expect(connection.createChannel).to.have.been.calledTwice;
 			expect(channel.prefetch).to.not.have.been.called;
 
