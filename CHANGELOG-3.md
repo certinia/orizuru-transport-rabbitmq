@@ -11,4 +11,3 @@
 ### BUGS FIXED
 
 - Channel leak from the publisher.
-
