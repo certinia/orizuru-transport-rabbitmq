@@ -8,8 +8,8 @@ It is a thin wrapper around [amqplib](https://www.npmjs.com/package/amqplib) and
 
 ## Install
 
-```
-$ npm install @financialforcedev/orizuru-transport-rabbitmq
+```sh
+npm install @financialforcedev/orizuru-transport-rabbitmq
 ```
 
 ## Usage
@@ -155,6 +155,16 @@ app.handle({
     }
 });
 ```
+
+## Development
+
+Before running `npm test`, make sure that Docker is installed.
+
+```sh
+brew cask install docker
+```
+
+`npm test` is configured to build and start the `orizuru-transport-rabbitmq--rabbitmq` service, then run the system tests.
 
 ## API Docs
 
